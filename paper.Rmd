@@ -606,22 +606,24 @@ beta %>% slice(1:4) %>% bind_rows(add) %>% bind_rows(other) %>%
 load("moranSC.rda")
 
 moranSC %>% mutate(year = 2010:2019) %>% relocate(3) %>% 
-  set_names(c("年份","Moran’s I指数","p值")) %>%
-  pivot_longer(-1,names_to = "类型") %>% 
-  ggplot(aes(年份,value,color = 类型))+
-  scale_colour_ggthemr_d()+
-  scale_color_viridis_d()+
-  geom_line(size = 1)+
-  geom_point(aes(shape = 类型),size = 3)+
+  set_names(c("年份","Moran’s I指数","p值")) %>% 
+  ggplot()+
+  geom_point(aes(年份,`Moran’s I指数`),size = 3)+
+  geom_line(size = 1,aes(年份,`Moran’s I指数`),color = alpha("red",0.5))+
+  geom_text(aes(label = round(`Moran’s I指数`,3),x =年份,y = `Moran’s I指数`),
+            nudge_x = 0.05,
+            nudge_y = 0.009,color = alpha("red")
+            )+
+  geom_col(aes(年份,p值),fill = alpha("orange",0.5))+
   scale_x_continuous(n.breaks = 10)+
   labs(y="",x="年份")+
   geom_hline(yintercept = 0.1,linetype = "dashed")+
+  geom_hline(yintercept = 0.05,linetype = "dashed")+
   theme(
     text = element_text(family = cnfont),
     plot.margin = margin(20,20,20,20),
     legend.position = "bottom"
   )
-
 ```
 
 
