@@ -1,0 +1,666 @@
+---
+title: "中国营商环境的地区差异、时空演变与收敛性研究"
+subtitle: "Working in Progress"
+author: "张沐"
+date: "`r Sys.Date()`"
+output:
+  prettydoc::html_pretty:
+    theme: cyanman
+    highlight: github
+---
+
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+
+knitr::opts_chunk$set(
+  fig.width=9, fig.height=5, fig.retina=3,
+  out.width = "100%",
+  cache = FALSE,
+  echo = TRUE,
+  message = FALSE, 
+  warning = FALSE,
+  fig.show = TRUE,
+  hiline = TRUE
+)
+
+setwd("/Users/null/Desktop/Doing Business/prettydoc")
+load("index.rda")
+load("final_index.rda")
+library(ggridges)
+library(patchwork)
+```
+
+
+
+## 摘要
+
+
+## 引言
+
+## 一、研究框架
+
+### 1.营商环境测度方法
+
+这一部分使用PCA方法进行测度，首先对每个一级指标下的诸多指标进行整合，得到五个子系统的得分情况，然后再用同样的方法对五个子系统再做一次PCA，得到最终的营商环境指标。
+
+### 2.营商环境分析方法
+
+#### （1）营商环境的动态分布演进分析
+
+这一部分使用非参中的核密度曲线进行反映。
+
+#### （2）营商环境的区域差异分析
+
+这一部分使用Dagum基尼系数来进行分析。
+
+#### （3）营商环境的收敛性分析
+
+实际上，是对上一部分的拓展，前面是一个静态的分析，重点考察了不同地区间和内部的差异。这一步则是采取一个动态的视角来进行考察。本文引入发展经济学中论证经济发展水平趋同特征的收敛模型对营商环境进行“存量”和“增量”的差异分析并进行检验，以明确营商环境的收敛特征。这一部分使用两种收敛模型进行分析。
+
+其中$\sigma$收敛模型重点在于：
+
+- 存量分析
+- 地区营商环境偏离整体平均说的差异及其动态变化趋势
+
+#### （4）营商环境的地区空间集聚性分析
+
+这一部分使用Moran’s I指数来进行分析
+
+### 3.数据来源和说明
+
+<span style='color:red'>待补充。</span>
+
+## 二、基本事实特征：营商环境测度结果
+
+### 1.营商环境指标子系统发展趋势
+
+<br>
+
+<span style='color:red'>此处要加一段过渡的说明</span>
+
+<br>
+
+<details >
+<summary>点击查看雷达图</summary>
+```{r echo=F}
+
+```
+</details>
+
+从以上雷达图中，可以发现：在样本考察期内的2010年至2019年，东部地区在除去“政府对企业保护”这一维度上要明显弱于其他两个区域外，其余的4个维度都要强于另外两个区域。而东部地区，虽然也在“政府对企业保护”弱于西部地区，但是在其余4个维度上始终强于西部地区。
+
+
+近一步，为了更加详细展示5个子系统在不同区域和不同时间的变化情况，本文采取了分面图的形式进行说明。
+
+
+```{r echo=FALSE}
+load("final_index.rda")
+load("index.rda")
+
+##########################################################################
+# 1 准备数据
+
+## 1.1 准备index_tweak
+map_dbl(index[4:8],~min(.x)) %>% sort(decreasing = F) %>% .[[1]] -> min 
+map_dbl(index[4:8],~max(.x)) %>% sort(decreasing = F) %>% .[[1]] -> max
+
+index %>% 
+  mutate(
+    across(
+      4:8,
+      ~ (.x-min)/(max-min)
+    )
+  ) -> index_tweak
+
+rm(min,max)
+
+## 1.2 准备 final_index_tweak
+
+final_index %>% 
+  mutate(index = (index-min(index))/(max(index)-min(index))) -> final_index_tweak
+
+
+## fig1：定子系统，重点对比不同地区随时间变化的情况
+index_tweak %>% 
+  group_by(year,location) %>% 
+  summarise(
+    across(
+      where(is.numeric),mean
+    )
+  ) %>% ungroup() %>% 
+  pivot_longer(-c(1:2),names_to = "子系统类别",values_to = "子系统得分") %>%
+  ggplot(aes(year,子系统得分,color = location))+
+  geom_line(size = 1)+
+  geom_point(aes(shape = location),show.legend = F,size = 2.5)+
+  facet_wrap(.~子系统类别,scales = "free")+
+  # scale_color_manual(values = c("black","blue","green"))+
+  scale_color_viridis_d()+
+  scale_x_continuous(n.breaks = 6)+
+  labs(color = "地区",x = "年份")+
+  theme(
+    legend.position = "bottom",text = element_text(family = cnfont),
+    plot.margin = margin(20,20,20,20))
+```
+
+由上图可以看出，对于“开放化水平”、“企业法治环境”和“企业经营环境”这三个子系统，
+三大区域都是呈现一个随时间递增的趋势。其中，东部地区在这三个子系统方面始终领先于另外两个区域。对于中部地区和西部地区而言，在“开放化水平”子系统下，西部地区要高于中部地区，而在“企业法治环境”中则恰恰相反，在“企业经营环境”中，两个地区则比较接近。对于“政府对企业的保护”和“政府公共服务水平”而言，三大区域的随时间变化趋势较为平稳。与之前雷达图所反映的信息一样，西部地区在这“政府对企业的保护”子系统下的得分始终高于其余两个地区，而在“政府公共服务水平”中，期初中部地区和东部地区的差异不大，但在2017年时，东部地区的得分高于中部地区，而且两者之间的差距随时间不断扩大。
+
+
+<br>
+
+```{r echo=F}
+## fig2：定地区，看子系统随时间的得分情况
+
+index_tweak %>% 
+  group_by(year,location) %>% 
+  summarise(
+    across(
+      where(is.numeric),mean
+    )
+  ) %>% ungroup() %>% 
+  pivot_longer(-c(1:2),names_to = "子系统类别",values_to = "子系统得分") %>%
+  ggplot(aes(year,子系统得分,color = 子系统类别))+
+  geom_line(size = 1)+
+  geom_point(aes(shape = 子系统类别),show.legend = F,size = 2.5)+
+  facet_wrap(.~location,scales = "free")+
+  scale_x_continuous(n.breaks = 6)+
+  labs(color = "子系统",x = "年份")+
+  # scale_color_manual(values = c("black","blue","green","red","yellow"))+
+  scale_color_viridis_d()+
+  theme(
+    legend.position = "bottom",text = element_text(family = cnfont),
+    plot.margin = margin(20,20,20,20))
+
+```
+
+在上图中，三大区域的5个子系统随时间变化的趋势各不相同。首先，从5个子系统的相对变化趋势而言。对于东部地区，5个子系统的得分趋近于发散；对于中部地区，得分基本保持平稳，但是存在收敛的趋势；对于西部地区而言，收敛趋势十分明显。
+
+其次，具体而言，对于东部地区。“企业法治环境”子系统得分变化最大，“开放化水平”次之，再次“企业经营环境”，最后是“政府公共服务水平”，而“政府对企业的保护”得分相对稳定；对于中部地区而言，除去“政府公共服务水平”和“企业法治环境”在个别年份出现下降之外，其余子系统的得分均呈现出稳定递增的趋势。总体上来说，在2010年至2019年，中部地区五个子系统的得分均有上升；对于西部地区而言，“企业经营环境”和“政府对企业的保护”虽在2015年存在过下降，但是之后保持稳定，其余的三个子系统得分则呈现出不同程度的上升。
+
+
+### 2.营商环境指标变化趋势
+
+```{r echo=FALSE}
+# 营商环境指标整体变化情况
+
+## fig1：全国下的整体和子系统得分对比
+
+final_index_tweak %>% group_by(year) %>%
+  summarise(
+    across(where(is.numeric),
+           list(mean = mean)
+    )) %>%
+  ungroup() %>% set_names(c("year","均值")) -> df
+
+index_tweak %>% group_by(year) %>%
+  summarise(
+    across(where(is.numeric),
+           list(mean = mean)
+    )) %>%
+  ungroup() %>% full_join(df,"year") -> df
+
+df %>% pivot_longer(-1) %>% 
+  mutate(name = str_remove_all(name,"_mean")) %>% 
+  mutate(
+    name = factor(
+      name,
+      levels = c("开放化水平","政府对企业的保护","企业经营环境","企业法治环境","政府公共服务水平","均值"),
+      labels = c("开放化水平","政府对企业的保护","企业经营环境","企业法治环境","政府公共服务水平","营商环境整体指标")
+    )
+  ) %>% dplyr::filter(name != "营商环境整体指标") -> df1
+
+
+df %>% pivot_longer(-1) %>% 
+  mutate(name = str_remove_all(name,"_mean")) %>% 
+  mutate(
+    name = factor(
+      name,
+      levels = c("开放化水平","政府对企业的保护","企业经营环境","企业法治环境","政府公共服务水平","均值"),
+      labels = c("开放化水平","政府对企业的保护","企业经营环境","企业法治环境","政府公共服务水平","营商环境整体指标")
+    )
+  )  %>% pivot_wider(names_from = name,values_from = value) %>% 
+  select(1,ncol(.)) -> df
+
+ggplot()+
+  geom_col(data = df,aes(year,营商环境整体指标),fill = alpha("grey"))+
+  geom_line(data = df1,aes(year,value,color = name),size = 1)+
+  geom_point(data = df1,
+             aes(year,value,shape = name,color = name),
+             size = 3,show.legend = F)+
+  labs(color = "子系统",x = "年份")+
+  # scale_color_manual(
+  #   values = c("black","blue","green","red","yellow")
+  # )+
+  scale_color_viridis_d()+
+  scale_shape_manual(
+    values = c(1,15:18)
+  )+
+  scale_x_continuous(n.breaks = 10)+
+  theme(
+    legend.position = "bottom",text = element_text(family = cnfont),
+    plot.margin = margin(20,20,20,20)
+  )
+```
+
+
+从上图可以看出，在全国范围内，营商环境指标的均值从期初的???变为期末的???，增幅高达???，说明在这10年间，我国营商环境的整体水平有极大的提高。
+
+<span style='color:red'>还有一段话要加上去，具体对5个子维度进行细说。</span>
+
+
+
+```{r echo=F}
+## fig2：全国营商环境和三大地区的得分情况对比
+
+final_index_tweak %>% 
+  group_by(location,year) %>% 
+  summarise(index = mean(index)) %>% 
+  pivot_wider(names_from = location,values_from = index) %>% 
+  mutate(
+    全国 = (东部地区+中部地区+西部地区)/3
+  ) %>% 
+  pivot_longer(-1,names_to = "location",values_to = "index") %>% 
+  ggplot(aes(year,index,color = location))+
+  geom_line(size = 1)+
+  labs(x = "年份",y = "得分",color = "地区")+
+  scale_x_continuous(n.breaks = 10)+
+  geom_point(aes(shape = location),show.legend = F,size = 3) +
+  scale_color_viridis_d()+
+  # scale_color_manual(values = c("black","blue","green","red"))+
+  scale_shape_manual(values = c(15:18))+
+  theme(
+    legend.position = "bottom",text = element_text(family = cnfont),
+    plot.margin = margin(20,20,20,20)
+  )
+
+```
+
+从上图中可以看出，无论是全国范围内还是三大区域，营商环境指标均呈现出随时间稳定增长的趋势。
+
+<span style='color:red'>具体对5个子维度进行细说，结合统计数据说增幅情况。</span>
+
+
+
+```{r  echo=FALSE}
+group_sort <- function(df,group_var,id_var,target_var) {
+  group_var <- enquo(group_var)
+  id_var <- enquo(id_var)
+  target_var <- enquo(target_var)
+  
+  map_df(
+    df %>% count(!!group_var) %>% pull(1) %>% rev(),
+    ~ df %>% dplyr::filter(!!group_var == .x) %>% arrange(!!target_var)
+  ) %>%
+    mutate(!!id_var := fct_inorder(!!id_var,ordered = T))
+} # end of "group_sort"
+
+
+final_index_tweak %>% 
+  dplyr::filter(year == 2019) %>% 
+  group_sort(location,province,index) %>% 
+  ggplot(aes(province,index,fill = location))+
+  geom_col()+coord_flip()+
+  labs(x = "",y = "得分",fill = "地区")+
+  # scale_fill_manual(values = c("black","blue","green"))+
+  scale_color_viridis_d()+
+  scale_y_continuous(limits = c(0,1.25))+
+  theme(
+    text = element_text(family = cnfont),
+    plot.margin = margin(20,20,20,20),
+    legend.position = "bottom",
+    axis.text.y.left = element_text(size = 8)
+  )
+
+```
+
+
+分层情况相当明显。在2019年，对于东部地区而言，没有一个省市其营商环境指标小于0；而对于中部地区，河南省和吉林省营商环境指标小于0；对于西部地区，除了重庆、四川和广西三地外，其余省市的指标均小于0。
+
+
+## 三、营商环境区域差异及其来源
+
+
+
+```{r echo=FALSE}
+load("gini.rda")
+
+gini %>% set_names(c("年份","全国","东部地区","中部地区","西部地区","东-中","东-西","中-西","Gw","Gnb","Gt")) %>% 
+  knitr::kable(digits = 2)
+```
+
+
+### 1.区域内差异
+
+
+
+```{r echo=FALSE}
+load("gini.rda")
+
+##########################################################################
+
+# 地区内的gini
+
+gini %>% select(1:5) %>% 
+  pivot_longer(-1,names_to = "地区") %>% 
+  mutate(
+    地区 = factor(
+      地区,
+      levels = c("g","东部地区","中部地区","西部地区"),
+      labels = c("全国","东部地区","中部地区","西部地区")
+    )
+  ) %>% 
+  ggplot(aes(year,value,color = 地区))+
+  geom_line(size = 0.8)+
+  scale_colour_ggthemr_d()+
+  scale_color_viridis_d()+
+  labs(y="区域内基尼系数",x = "年份")+
+  geom_point(aes(shape = 地区),size = 3)+
+  scale_x_continuous(n.breaks = 10)+
+  theme(
+    text = element_text(family = cnfont),
+    plot.margin = margin(20,20,20,20),
+    legend.position = "bottom"
+  )
+```
+
+
+### 2.区域间差异
+
+
+
+```{r echo=FALSE}
+##########################################################################
+# 地区间的差异
+
+
+gini %>% select(1,6:8) %>% 
+  pivot_longer(-1,names_to = "地区") %>% 
+  ggplot(aes(year,value,color = 地区))+
+  geom_line(size = 0.8)+
+  labs(y="区域内基尼系数",x = "年份")+
+  geom_point(aes(shape = 地区),size = 3)+
+  scale_x_continuous(n.breaks = 10)+
+  scale_colour_ggthemr_d()+
+  scale_color_viridis_d()+
+  theme(
+    text = element_text(family = cnfont),
+    plot.margin = margin(20,20,20,20),
+    legend.position = "bottom"
+  )
+```
+
+
+
+
+
+
+
+
+### 3.差异来源及其贡献
+
+```{r echo=FALSE}
+gini %>% select(1,9:11) %>% 
+  mutate(
+    r_gw = gw/(gw+gnb+gt),
+    r_gnb =gnb/(gw+gnb+gt),
+    r_gt = gt/(gw+gnb+gt),
+  ) %>% select(!starts_with("g")) %>% 
+  set_names(
+    c("year","区域内差异的贡献","区域间净值差异的贡献","超变密度的贡献")) %>% 
+  pivot_longer(-1,names_to = "差异来源",values_to = "贡献率") %>% 
+  ggplot(aes(year,贡献率,color = 差异来源))+
+  geom_line(size = 0.8)+
+  scale_colour_ggthemr_d()+
+  labs(y="贡献率",x = "年份")+
+  geom_point(aes(shape = 差异来源),size = 3)+
+  scale_x_continuous(n.breaks = 10)+
+  scale_y_continuous(labels = percent)+
+  scale_color_viridis_d()+
+  theme(
+    text = element_text(family = cnfont),
+    plot.margin = margin(20,20,20,20),
+    legend.position = "bottom"
+  )
+
+```
+
+
+
+## 四、营商环境的动态分布演进特征
+
+Dagum基尼系数基于营商环境相对差异的角度，从三大区域间和区域内的角度展示了营商环境指标分布的空间变化过程。为近一步展示营商环境指标的绝对差异，本文采用核密度估计法，分析核密度估计（KDE）曲线的中心位置、形态、延展性和极化趋势等，对样本考察期内中国营商环境指标的动态分布特征与时变演变趋势进行研究。假设$f(x)$为中国营商环境指标$x$的密度函数，则有：
+
+\begin{equation}
+f(x)=\frac{1}{N h} \sum_{i=1}^{N} K\left(\frac{X_{i}-x}{h}\right)
+\end{equation}
+
+其中，$N$为观测值个数，$X_i$表示独立同分布的观测值，$x$则表示观测值的均值，$K(^.)$表示核密度函数，$h$为带宽。为估计上的精确，本文使用高斯核密度函数对全国整体和三大区域营商环境指标的动态分布演变进行估计。其中，高斯核密度函数为：
+
+\begin{equation}
+K(x)=\frac{1}{\sqrt{2 \pi}} \exp \left(-\frac{x^{2}}{2}\right)
+\end{equation}
+
+
+### 1.全国整体层面
+
+
+
+```{r echo=F}
+setwd("/Users/null/Desktop/Doing Business/prettydoc")
+load("final_index.rda")
+library(ggridges)
+
+final_index %>% 
+  mutate(index = (index-min(index))/(max(index)-min(index))) -> final_index_tweak
+
+final_index_tweak %>% 
+  ggplot(aes(index,factor(year)))+
+  geom_density_ridges(rel_min_height = 0.05,alpha = 0.5,
+                      color = "darkblue",size = 0.4,
+                      scale = 1.5,show.legend = F,
+                      quantile_lines = T,quantiles = c(0.025,0.5,0.975),
+                      linetype = "dashed")+
+  labs(x = "营商环境指标",y = "",title = "全国整体")+
+  scale_color_viridis_d()+
+  theme(
+    text = element_text(family = cnfont),
+    plot.margin = margin(20,20,20,20),
+    plot.title = element_text(hjust = 0.5)
+  )
+
+```
+
+上图表示了全国30个省份在2010年至2019年内营商环境指标的动态分布情况。其中，横轴是营商环境指标得分，纵轴是样本考察期，图形内的三条虚线分别表示2.5%、50%和97.5%的分位数。
+
+首先，KDE曲线的中心位置虽在2015年至2018年变化幅度不大，但整体呈现出右移趋势，这说明在全国整体层面上，营商环境是稳步提高的。
+
+其次，波峰的高度以一定的速度持续下降，同时曲线覆盖的宽度持续增加，这反映出一些省份对营商环境重视度的提高，着手提高当地的企业经营环境，因此其营商环境指标渐渐与其他地区拉开差距。
+
+除此之外，就KDE曲线的分布延展性来说，曲线左侧极值呈现出先减小再增大的规律，而右侧极值则是先增大再稳定，两侧极值之间的距离持续增长。这样的右偏分布说明低营商环境指标的省份具有较高的核密度估计值，而高营商环境指标的省份占有的核密度估计值则较少，说明营商环境较为良好的地区依然集中在少部分省市。
+
+最后，对于波峰个数的变化，虽在本文的考察期内，全国层面的KDE曲线并未呈现出明显的多峰，但在2017年之后，波峰外凸程度不断下降，且在2019年时，50%分位数的位置已经不再对应波峰最高点。结合以上信息，本文认为以30个省份为代表的全国营商环境指标存在着梯度效应，处于第一梯度的各省其营商环境指标逐年提高，而处于末尾梯队省份的营商环境则基本处于停滞状态，也即两极分化的演变趋势逐渐展现。
+
+
+
+### 2.不同区域层面
+
+
+```{r echo=F}
+final_index_tweak %>% 
+  ggplot(aes(index,factor(year)))+
+  geom_density_ridges(rel_min_height = 0.03,alpha = 0.4,
+                      color = "darkblue",size = 0.4,
+                      scale = 1.9,show.legend = F,
+                      quantile_lines = T,quantiles = c(0.025,0.5,0.975),
+                      linetype = "dashed")+
+  labs(x = "营商环境指标",y = "")+
+  scale_color_viridis_d()+
+  theme(
+    text = element_text(family = cnfont),
+    plot.margin = margin(40,40,40,40),
+    plot.title = element_text(hjust = 0.5)
+  ) +
+  facet_wrap(.~location,scales = "free_x")
+```
+
+上图展示了三大区域内部营商环境指标的动态分布情况。首先，无论是哪一个区域，代表KDE中心位置的50%分数线不断右移，说明三个地区营商环境指标均是不断得到优化的，这一点和之前关于全国整体层面上KDE曲线中心右移的情况一致。
+
+具体而言，对于东部地区，主波峰由“尖而窄”向“扁而平”转换。同时，波峰的高度持续一定的速度下降，曲线覆盖面积不断扩大。除此之外，整个KDE曲线逐渐由单波峰向两波峰演变。综合这几点信息，说明东部地区的营商环境指标，其内部的绝对差异不断的扩大，存在两极分化的趋势。
+
+其次，对于中部地区，波峰的高度以较快的速度下降且覆盖面积随之增加。同时，曲线在样本观测期内便实现了由单波峰向多波峰的转变，且两峰之间的距离不断的拉大。除此之外，2019年和2018年的右侧拖尾在虽较之于2017年有所左移，但是在整个观测期内还是呈现出明显的右侧拖尾拓宽的规律。这表明中部地区内部各个省份之间营商环境指标的追赶势态十分激烈，且各地的营商环境指标改善速度有较大的差别，从而导致区域内部营商环境指标间差距分化程度的加深。
+
+最后，对于西部地区来说，不同于前两个地区波峰高度逐渐的下降，西部地区KDE曲线的波峰高度是不断上升的，且主峰的宽度逐渐减小。同时，在期末几期出现两个侧峰，且主峰和侧峰的相对位置不断扩大，这说明西部地区营商环境存在十分明显的三极分化现象。同时，两侧的侧峰对应的覆盖的面积持续增加，表明“低”、“中”和“高”营商环境指标省市的差距在不断的增大，也即西部地区内部省份与省份之间的绝对差异以一个递增的速度在扩大。
+
+
+## 五、营商环境收敛性分析
+
+### 1.营商环境$\sigma$收敛分析
+
+\begin{equation}
+\sigma_{t}=\frac{\sqrt{\frac{1}{n} \sum_{i=1}^{n}\left(Index_{i t}-\frac{1}{n} \sum_{i=1}^{n} Index_{i t}\right)^{2}}} { \frac{1}{n} \sum_{i=1}^{n} Index_{i t}}
+\end{equation}
+
+
+```{r echo=FALSE}
+# 变异系数法
+##########################################################################
+load("final_index.rda")
+
+final_index %>%
+  mutate(index = (index-min(index))/(max(index)-min(index))) %>% 
+  group_by(year,location) %>%
+  summarise(
+    sigma = sqrt(mean((index - mean(index))^2))/mean(index)
+  ) %>% ungroup() %>% pivot_wider(names_from = location,values_from = sigma) %>% 
+  mutate(
+    全国 = (东部地区+中部地区+西部地区)/3
+  ) %>% 
+  pivot_longer(-1) %>% 
+  mutate(
+    name = factor(name,levels = c("全国","东部地区","中部地区","西部地区"))
+  ) %>% set_names(c("年份","地区","变异系数")) %>% 
+  ggplot(aes(年份,变异系数,color = 地区))+
+  geom_point(aes(shape = 地区),size =3 )+
+  geom_line(size = 1)+
+  scale_colour_ggthemr_d()+
+  scale_color_viridis_d()+
+  scale_x_continuous(n.breaks = 10)+
+  theme(
+    text = element_text(family = cnfont),
+    plot.margin = margin(20,20,20,20),
+    legend.position = "bottom"
+  )
+```
+
+
+### 2.营商环境$\beta$收敛分析
+
+
+\begin{equation}
+\ln \left(\frac{Index_{i, t+1}}{Index_{i t}}\right)=\alpha+\beta \ln Index_{i t}+\eta_{t}+\lambda_{i}+\varepsilon_{i t}
+\end{equation}
+
+<br>
+
+```{r echo=FALSE}
+##########################################################################
+# 绝对beta  收敛
+
+library(docxtractr)
+
+read_docx("beta.docx") %>% 
+  docx_extract_tbl(tbl_number = 1,header = T) %>% 
+  slice(n=1) %>% as.character() -> name
+
+name[[1]] <- "模型"
+
+read_docx("beta.docx") %>% 
+  docx_extract_tbl(tbl_number = 1,header = T) %>%
+  slice(n=-1) %>% set_names(name) %>% 
+  slice(n = -c(3:138)) %>% 
+  mutate(
+    模型 = case_when(
+      模型 == "_cons" ~ "常数项",
+      模型 == "N" ~ "观测值",
+      模型 == "r2_o" ~ "整体拟合优度",
+      模型 == "" ~ " ",
+      T ~ "贝塔系数"
+    )
+  ) -> beta
+
+beta %>% complete(模型 = c(beta %>% pull(1),"时间固定效应","地区固定效应")) %>% 
+  slice(n = c(5,7)) -> add
+
+beta %>% slice(-c(1:4)) -> other
+
+beta %>% slice(1:4) %>% bind_rows(add) %>% bind_rows(other) %>% 
+  mutate(
+    across(
+      everything(),
+      ~ if_else(is.na(.x),"控制",.x)
+    )
+  ) %>% knitr::kable()
+```
+
+
+
+
+
+## 六、营商环境空间集聚特征分析
+
+```{r echo=FALSE}
+load("moranSC.rda")
+
+moranSC %>% mutate(year = 2010:2019) %>% relocate(3) %>% 
+  set_names(c("年份","Moran’s I指数","p值")) %>%
+  pivot_longer(-1,names_to = "类型") %>% 
+  ggplot(aes(年份,value,color = 类型))+
+  scale_colour_ggthemr_d()+
+  scale_color_viridis_d()+
+  geom_line(size = 1)+
+  geom_point(aes(shape = 类型),size = 3)+
+  scale_x_continuous(n.breaks = 10)+
+  labs(y="",x="年份")+
+  geom_hline(yintercept = 0.1,linetype = "dashed")+
+  theme(
+    text = element_text(family = cnfont),
+    plot.margin = margin(20,20,20,20),
+    legend.position = "bottom"
+  )
+
+```
+
+
+
+```{r echo=FALSE}
+load("moran.rda")
+moran %>% 
+  dplyr::filter(year %in% c(2010,2015,2019)) %>% 
+  mutate(face = paste(year,"年Moran’s I指数")) %>% 
+  ggplot(aes(std_index,w_std_index))+
+  scale_colour_ggthemr_d()+
+  geom_point(size = 3,aes(color = location),alpha = 0.7)+
+  scale_color_viridis_d()+
+  # scale_color_manual(values = c("black","red","blue"))+
+  geom_smooth(method = "lm",se = F,linetype = "solid",color = "cyan")+
+  labs(x="",y="",color = "地区")+
+  geom_abline(intercept = 0, slope = 0,linetype = "dotted")+
+  geom_vline(xintercept = 0,linetype = "dotted")+
+  facet_grid(.~face)+
+  theme(
+    text = element_text(family = cnfont),
+    plot.margin = margin(40,40,40,40),
+    plot.title = element_text(hjust = 0.5),
+    legend.position = "bottom"
+  )
+
+```
+
+
+## 七、结论
+
+
+
+
+
