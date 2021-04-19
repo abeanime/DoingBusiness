@@ -2,7 +2,7 @@
 title: "中国营商环境的地区差异、时空演变与收敛性研究"
 subtitle: "Working in Progress"
 author: "张沐"
-date: "`r Sys.Date()`"
+date: '`r paste("最近修改日期：",Sys.Date())`'
 output:
   prettydoc::html_pretty:
     theme: cyanman

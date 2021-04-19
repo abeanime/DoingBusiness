@@ -3,7 +3,7 @@
     "path": "~/Desktop/Doing Business/prettydoc/paper.Rmd",
     "project_path": "paper.Rmd",
     "type": "r_markdown",
-    "hash": "2290251261",
+    "hash": "2039071355",
     "contents": "",
     "dirty": false,
     "created": 1618843856936.0,
@@ -14,11 +14,11 @@
         "Source": "Source"
     },
     "folds": "",
-    "lastKnownWriteTime": 1618843873,
+    "lastKnownWriteTime": 1618844489,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1618843873219,
+    "last_content_update": 1618844489577,
     "read_only": false,
     "read_only_alternatives": []
 }
