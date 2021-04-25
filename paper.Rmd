@@ -63,7 +63,68 @@ library(patchwork)
 
 #### （2）营商环境的区域差异分析
 
-这一部分使用Dagum基尼系数来进行分析。
+在衡量地区差异中总常用的统计指标是基尼系数，而随着统计学的发展，在传统基尼系数的基础之上逐渐又演化出泰尔指数（1967）、Pyatt基尼系数（1967）和Dagum基尼系数（1997）等一系列不平等的统计方法。从静态角度看，传统基尼系数只能比较各个地区的整体不平等程度，不能近一步说明不平等的来源和特征；从动态角度看，传统基尼系数不能刻画收入差距扩大的路径，不能说明地区内部不同子群的不平等的演化过程，所揭示的信息较为受限；并且在研究对象是空间非均衡时得到结果的准确性往往会受到质疑。泰尔指数虽然在传统基尼系数的基础之上将区域间的总体差异近一步分解为组内差异和组间差异两部分，但是要求不同组别的样本应满足独立同方差和正态分布，而在实际中这一点往往难以满足。Pyatt基尼系数则将基尼系数近一步分解为三个部分：区域内差异、区域间差异和层迭项（overlapped），但是由于计算过程的繁杂因而其主要贡献体现在理论证明上。而Dagum基尼系数则在上述方法的基础之上，不仅可以有效克服基尼系数不能按子群进行分组测算的局限，同时还能定量得到不同子群对地区差距的各自贡献程度以及解决样本交叉重叠的问题（插入一大堆文献）。因此，本文依照Dagum基尼系数的计算方法将营商环境指标差异分解为区域内差异、区域间差异和超变密度的贡献三部分，并将全国除港澳台和西藏外的30个省市划分为东、中、西三大区域。整体基尼系数的计算公式如式（1）所示：
+
+\begin{equation}
+G=\sum_{j=1}^{k} \sum_{h=1}^{k} \sum_{i=1}^{n_{j}} \sum_{r=1}^{n_{h}}\left|y_{j i}-y_{h r}\right| /\left(2 n^{2} \bar{y}\right)  \tag{1}
+\end{equation}
+
+其中，$G$表示整体基尼系数，数值越大表示总体的差异越大；$k$为区域划分个数，在本文中$k$为3；$n$为省市总个数，在本文中$n$为30；而$n_j（n_h）$为第$j（h）$个区域内部的省市个数；$y_{ji}（y_{hr}）$为第$j（h）$个区域内部营商环境指标；$\bar{y}$为全国营商环境指标的均值。
+
+而在进行Dagum基尼系数分解前，需要按照式（2）的方式对各个区域营商环境指标的平均值进行由小到大的排序。
+
+\begin{equation}
+\bar{y}_{1} \leqslant \bar{y}_{2} \leqslant \cdots \leqslant \bar{y}_{j} \leqslant \cdots \leqslant \bar{y}_{k} \tag{2}
+\end{equation}
+
+\begin{equation}
+G_{j j}=\frac{\sum_{i=1}^{n_{j}} \sum_{r=1}^{n_{j}}\left|y_{j i}-y_{j r}\right| /\left(2 \bar{y}_{j}\right)}{n_{j}^{2}} \tag{3}
+\end{equation}
+
+\begin{equation}
+G_{j h}=\frac{\sum_{i=1}^{n_{j}} \sum_{r=1}^{n_{h}}\left|y_{j i}-y_{h r}\right|}{n_{j} \cdot n_{h} \cdot\left(\bar{y}_{j}+\bar{y}_{h}\right)} \tag{4}
+\end{equation}
+
+式（3）和式（4）分别表示第$j$个区域的基尼系数$G_{jj}$和第$j$个区域与第$h$个区域的区域间基尼系数。式中的$\bar{y_j}$和$\bar{y_h}$分别表示第$j$个区域与第$h$个区域的营商环境指标均值；${n_j}$和${n_h}$则分别表示第$j$个区域与第$h$个区域的省市数量。近一步，将总体基尼系数分解为区域内基尼系数、区域间基尼系数和超变密度，如式（5）所示：
+
+\begin{equation}
+G = G_{w}+G_{nb}+G_{t} \tag{5}
+\end{equation}
+
+式（6）至式（8）分别给出了区域内基尼系数（$G_w$）、区域间基尼系数（$G_{nb}$）和超变密度（$G_{t}$）的计算公式：
+
+\begin{equation}
+G_{w}=\sum_{j=1}^{k} G_{j j} \cdot p_{j} \cdot s_{j} \tag{6}
+\end{equation}
+
+\begin{equation}
+G_{n b}=\sum_{j=2}^{k} \sum_{h=1}^{j-1} G_{j h}\left(p_{j} s_{h}+p_{h} s_{j}\right) D_{j h} \tag{7}
+\end{equation}
+
+\begin{equation}
+G_{t}=\sum_{j=2}^{k} \sum_{h=1}^{j-1} G_{j h}\left(p_{j} s_{h}+p_{h} s_{j}\right)\left(1-D_{j h}\right) \tag{8}
+\end{equation}
+
+其中，$p_i = n_j/n$，$s_j = (n_j \cdot \bar{y_i})/(n \cdot \bar{y})$。并且，$\sum p_j = \sum s_j = \sum_{j = 1}^{k}\sum_{h = 1}^{k}p_js_h = 1$。$D_{jh}$表示第$j、h$个区域间的营商环境指标的相对影响，计算公式如式（9）所示：
+
+\begin{equation}
+D_{j h}=\left(d_{j h}-p_{j h}\right) /\left(d_{j h}+p_{j h}\right) \tag{9}
+\end{equation}
+
+在式（9）中，$d_{j h}$和$p_{j h}$分别表示$j、h$区域中所有$y_{ji} \succ y_{hr}$的样本值之和的数学期望和$j、h$区域中所有$y_{ji} \prec y_{hr}$的样本值之和的数学期望，两者的具体计算公式如式（10）和式（11）所示。其中，$F_j$和$F_h$分别表示$j、h$区域的累积分布函数。
+
+\begin{equation}
+d_{j h}=\int_{0}^{\infty} d F_{j}(y) \int_{0}^{y}(y-x) d F_{h}(x) \tag{10}
+\end{equation}
+
+
+\begin{equation}
+p_{j h}=\int_{0}^{\infty} d F_{h}(y) \int_{0}^{y}(y-x) d F_{j}(x) \tag{11}
+\end{equation}
+
+
+
+
 
 #### （3）营商环境的收敛性分析
 
