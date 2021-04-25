@@ -146,7 +146,7 @@ f(x)=\frac{1}{N} \sum_{i=1}^{N} \frac{ w_{i}}{\lambda_{i}h_{N}} K\left(\frac{X_{
 在进行核密度估计时，往往需要确定核函数，而核函数根据其表达形式的差别可分为高斯核、三角核、四角核以及Epanechnikov核等，本文使用较为常用的高斯核密度函数对全国整体和三大区域营商环境指标的动态分布演变进行估计。最终，高斯核的自适应核密度函数为：
 
 \begin{equation}
-f(x) = \frac{1}{\sqrt{2\pi}Nh_N}\sum_{i = 1}^{N}\frac{e^{-\frac{1}{2}(\frac{X_{i}-x}{\lambda_ih_N})^2}}{\lambda_i} \tag{14}
+f(x) = \frac{1}{\sqrt{2\pi}Nh_N}\sum_{i = 1}^{N}\frac{e^{-\frac{1}{2}(\frac{X_i}{\lambda_ih_N})^2}}{\lambda_i} \tag{14}
 \end{equation}
 
 
