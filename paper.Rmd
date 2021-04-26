@@ -362,6 +362,87 @@ final_index_tweak %>%
 
 
 
+```{r echo=FALSE}
+load("final_index.rda")
+load("raw.rda")
+pacman::p_load(lubridate,sf,geojsonsf,geojsonio,jsonlite,haven)
+
+
+final_index %>%  
+  mutate(index = (index -min(index))/(max(index)-min(index))) %>% 
+  mutate(new = round(index,3)) -> final_index
+
+prov_unify <- function(df,province=province) {
+  df %>% pull({{province}}) -> target
+  if_else(str_detect(target,"[内蒙古黑龙]"),
+          str_replace_all(target,"(.{3}).*","\\1"),
+          str_replace_all(target,"(.{2}).*","\\1")) -> target
+  df %>% bind_cols(target) %>% rename("new" = ncol(.)) %>%
+    relocate(ncol(.),.after = {{province}}) %>% select(-{{province}}) %>%
+    rename("province" = "new")
+} # end of "cn_province"
+
+raw %>% prov_unify(省) %>% 
+  sf_geojson() %>% 
+  fromJSON(simplifyVector = FALSE) -> provmap
+
+final_index %>% dplyr::filter(year == 2019) %>% pull(4) %>% quantile() -> qqq
+
+highchart() %>% # 使用JavaScript方式
+  hc_chart(
+    type = "map", # 指定何种geoms
+    spacingBottom = 10,
+    spacingTop = 10,
+    spacingLeft = 10,
+    spacingRight = 10,
+    style = list(
+      fontFamily = cnfont
+    )
+  ) %>% 
+  hc_add_series_map(map = provmap,
+                    df = final_index %>% dplyr::filter(year == 2019), 
+                    joinBy = c("province", "province"), 
+                    value = "index", 
+                    name = "营商环境指标：",
+                    borderWidth = 1,
+                    borderColor = "white",
+                    states = list(hover = list(color = '#bada55')),
+                    dataLabels = list(enabled = FALSE)) %>% 
+  hc_add_series(
+    data = provmap,
+    type = "mapline",geojson = T,
+    color = "black",borderWidth = 0.5,show.legend = T
+  ) %>% 
+  hc_colorAxis(dataClasses = list(
+    list(to = qqq[[1]], color = alpha("grey",0.2), name = "数据缺失"),
+    list(from = qqq[[1]], to = qqq[[2]], color = alpha("grey",0.5)),
+    list(from = qqq[[2]], to = qqq[[3]], color = alpha("grey",0.8)),
+    list(from = qqq[[3]], to = 1.2, color = "grey"))) %>% 
+  hc_tooltip(headerFormat = "",
+        pointFormat = "<b>{point.province}</b><br>营商环境指标：{point.new}",
+             borderRadius = 5) %>% 
+  hc_legend(align = 'center',
+            # layout = 'horizontial',
+            verticalAlign = "bottom",
+            itemMarginTop= 3,
+            itemMarginBottom= 3,
+            valueDecimals = 3,
+            # floating = TRUE,
+            symbolRadius = 0,
+            # x = 200, y = -20,
+            symbolHeight = 14, 
+            title = list(text = " ")) %>% 
+  hc_title(
+    text = str_c(2019,"年全国各地营商环境指标分布情况")
+  )
+```
+
+
+
+
+
+
+
 ```{r  echo=FALSE}
 group_sort <- function(df,group_var,id_var,target_var) {
   group_var <- enquo(group_var)
@@ -376,14 +457,20 @@ group_sort <- function(df,group_var,id_var,target_var) {
 } # end of "group_sort"
 
 
-final_index_tweak %>% 
+load("final_index.rda")
+final_index %<>% mutate(index = (index-min(index))/(max(index)-min(index)))
+
+final_index %>% 
   dplyr::filter(year == 2019) %>% 
   group_sort(location,province,index) %>% 
   ggplot(aes(province,index,fill = location))+
-  geom_col()+coord_flip()+
+  geom_col(color = alpha("white",0.5))+coord_flip()+
+  # geom_hline(yintercept = qqq[[2]],linetype = "dashed",color = "black")+
+  # geom_hline(yintercept = qqq[[3]],linetype = "dashed",color = "black")+
+  # geom_hline(yintercept = qqq[[4]],linetype = "dashed",color = "black")+
   labs(x = "",y = "得分",fill = "地区")+
-  # scale_fill_manual(values = c("black","blue","green"))+
-  scale_color_viridis_d()+
+  scale_fill_manual(values = c(alpha("black",0.2),"darkgrey",alpha("black",0.6)))+
+  # scale_color_viridis_d()+
   scale_y_continuous(limits = c(0,1.25))+
   theme(
     text = element_text(family = cnfont),
