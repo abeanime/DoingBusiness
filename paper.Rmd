@@ -152,7 +152,7 @@ f(x) = \frac{1}{\sqrt{2\pi}Nh_N}\sum_{i = 1}^{N}\frac{e^{-\frac{1}{2}(\frac{X_i}
 
 ### 3.营商环境的收敛性分析
 
-对于经济指标收敛性的研究根据其研究视角的不同，可分为时间视角和空间视角两类，分别对应时间收敛和空间收敛。不难理解，时间收敛是指随着时间的推移，初始存在差距的两个个体间的差距会逐渐缩小；而空间收敛则是指处于外围空间的个体，其经济指标具有趋向于中心个体的特征。（刘明，王思文 2018）。对于时间收敛，常见的模型有$\sigma$收敛模型、绝对$\beta$收敛模型、条件$\beta$收敛模型和俱乐部收敛模型。而对于对于空间收敛的分析，常见的模型有加入空间矩阵的拓展$\beta$收敛模型：空间误差模型（SEM）、空间杜宾模型（SBM）等。本文对于营商环境指标收敛性研究中重点关注其时间收敛性，因此使用基本的$\sigma$收敛模型和基于$\beta$收敛模型的新型拓展模型——边际垂直$\beta$收敛（Marginal Vertical $\beta$-convergence ）模型。
+对于经济指标收敛性的研究根据其研究视角的不同，可分为时间视角和空间视角两类，分别对应时间收敛和空间收敛。不难理解，时间收敛是指随着时间的推移，初始存在差距的两个个体间的差距会逐渐缩小；而空间收敛则是指处于外围空间的个体，其经济指标具有趋向于中心个体的特征。（刘明，王思文 2018）。对于时间收敛，常见的模型有$\sigma$收敛模型、绝对$\beta$收敛模型、条件$\beta$收敛模型和俱乐部收敛模型。而对于对于空间收敛的分析，常见的模型有加入空间矩阵的拓展$\beta$收敛模型：空间误差模型（SEM）、空间杜宾模型（SBM）等。本文对于营商环境指标收敛性研究中重点关注其时间收敛性，因此使用基本的$\sigma$收敛模型和基于$\beta$收敛模型的拓展模型——边际垂直$\beta$收敛（Marginal Vertical $\beta$-convergence ）模型。
 
 
 #### （1）$\sigma$收敛模型
@@ -174,7 +174,14 @@ $\sigma$收敛是指随着时间的推移不同地区的营商环境指标偏离
 log \left(\frac{y_{i,t+1}}{y_{i t}}\right)= \alpha_0+\alpha_1 log \left(y_{i t}\right)+\lambda_i+\eta_t+\mu_{it} \tag{16}
 \end{equation}
 
-其中，$\alpha_0$为常数项；$(e^{-\beta}-1)$为重点关注系数，若其显著为负则说明营商环境指标存在$\beta$收敛性质，反之则说明发散；$\lambda_i$和$\eta_t$分别表示个体（省市）固定效应和时间固定效应；$\mu_{it}$表示误差项。近一步，$\beta$收敛模型中的$\beta$系数为正且数值越大时，$\alpha_1$为负且绝对值也越大。 两者的相关关系如下图所示。
+其中，$\alpha_0$为常数项；$(e^{-\beta}-1)$为重点关注系数，若其显著为负则说明营商环境指标存在$\beta$收敛性质，反之则说明发散；$\lambda_i$和$\eta_t$分别表示个体（省市）固定效应和时间固定效应；$\mu_{it}$表示误差项。近一步，$\beta$收敛模型中的$\beta$系数和$\alpha_1$的数学关系为：
+
+\begin{equation}
+\alpha_1 = -(1-e^{-\beta}) \tag{17}
+\end{equation}
+
+
+不难发现，当$\beta$为正且数值越大时，$\alpha_1$为负且绝对值也越大。两者的相关关系如下图所示。
 
 ```{r echo=FALSE}
 library(latex2exp)
@@ -193,24 +200,28 @@ tibble(
 ```
 
 
-
 除此之外，在$\beta$收敛分析中，半期收敛系数（Half-life of Convergence Coefficient）也比较常用，其计算方法如下式所示：
 
 \begin{equation}
-T_{\frac{1}{2}} = \frac{log2}{\beta} \tag{17}
+T_{\frac{1}{2}} = \frac{log2}{\beta} \tag{18}
 \end{equation}
 
 半期收敛系数的经济学意义为：各地区经济指标的差异缩小为初始差异一半时所经历的时间（Izabela 2016），其基本作用是以当下的收敛速度，预测达到稳态均衡时所需要的时间。
 
-根据Batóg（2021）的做法，边际垂直$\beta$收敛模型的估计步骤分为两步。第一步，对式（16）进行估计，得到$\hat\alpha_1$，然后由$\hat\alpha_1$求得$\hat\beta$，其次将第$i$个地区从样本中删去，重复第一步，得到$\hat \beta_{i}^{n-1}$，再将两次得到的结果相减便得到了$i$地区的边际垂直收敛速度$\Delta\beta_i$，$\Delta\beta_i$的数学表达式为：
+根据Batóg（2021）的做法，边际垂直$\beta$收敛模型的估计步骤分为两步。第一步，对式（16）进行估计，得到$\hat\alpha_1$，然后由$\hat\alpha_1$求得$\hat\beta$；第二步，将第$i$个地区从样本中删去，重复第一步，得到$\hat \beta_{i}^{n-1}$，再将两次得到的结果相减便得到了$i$地区的边际垂直收敛速度$\Delta\beta_i$，$\Delta\beta_i$的数学表达式为：
 
 
 \begin{equation}
 \Delta\beta_i = \hat\beta - \hat\beta_{i}^{n-1} \tag{19}
 \end{equation}
 
-其中，$\hat\beta$为整体收敛速度（General Convergence Speed）；$\hat\beta_{i}^{n-1}$为除去$i$地区后的收敛速度；两者之差$\Delta\beta_i$表示$i$地区的边际垂直收敛速度，也即$i$地区在收敛过程中的边际贡献。
+其中，$\hat\beta$为整体收敛速度（General Convergence Speed）；$\hat\beta_{i}^{n-1}$为除去$i$地区后的收敛速度；两者之差$\Delta\beta_i$表示$i$地区的边际垂直收敛速度，也即$i$地区在收敛过程中的边际贡献，当其为正数时，说明$i$地区在整体的收敛过程中起到了正向的推动作用，且数值越大这种边际贡献也就越大。对于半期收敛系数，其计算方式类似：
 
+\begin{equation}
+\Delta T_{\frac{1}{2},i} = \hat T_{\frac{1}{2}}-\hat T^{n-1}_{\frac{1}{2},i} \tag{20}
+\end{equation}
+
+假定$\Delta T_{\frac{1}{2},i}$为负且绝对值为$t_0$时，对此的解释为：由于$i$区域的影响，导致差异缩小为初始差异一般时所需要的时间减少了$t_0$年。
 
 
 
@@ -841,6 +852,41 @@ beta %>% slice(1:4) %>% bind_rows(add) %>% bind_rows(other) %>%
 
 #### （2）边际垂直$\beta$收敛模型
 
+
+```{r echo=FALSE}
+load("mvb.rda")
+mvb %>% pivot_wider(names_from = period,values_from = c(marginal,t)) %>% 
+  set_names(c("省市","地区","第一期边际垂直beta","第一期半期收敛系数",
+              "第二期边际垂直beta","第二期半期收敛系数")) %>% 
+  select(-地区) %>% 
+  arrange(第一期边际垂直beta) %>% 
+  select(1,2,4,3,5) %>% 
+  mutate(
+    across(
+      where(is.numeric),
+     ~ round(.x,3)
+    )
+  ) %>% knitr::kable()
+```
+
+
+```{r echo=FALSE}
+load("mvb.rda")
+mvb %>% 
+  group_sort(location,province,marginal) %>% 
+  ggplot(aes(marginal,province,fill = location))+
+  geom_col()+scale_colour_ggthemr_d()+
+  # geom_text_repel(size = 3)+
+  theme(
+    text = element_text(family = cnfont),
+    plot.margin = margin(20,20,20,20),
+    legend.position = "bottom",
+    axis.text.y.left = element_text(size = 8)
+  )+
+  scale_fill_manual(values = c(alpha("black",0.2),"darkgrey",alpha("black",0.6)))+
+  labs(x = "",y = "",fill = "地区")+
+  facet_wrap(.~period,scales = "free_x") 
+```
 
 
 
