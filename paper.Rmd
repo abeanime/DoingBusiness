@@ -517,7 +517,7 @@ group_sort <- function(df,group_var,id_var,target_var) {
     mutate(!!id_var := fct_inorder(!!id_var,ordered = T))
 } # end of "group_sort"
 
-
+library(ggchicklet)
 load("final_index.rda")
 final_index %<>% mutate(index = (index-min(index))/(max(index)-min(index)))
 
@@ -525,7 +525,9 @@ final_index %>%
   dplyr::filter(year == 2019) %>% 
   group_sort(location,province,index) %>% 
   ggplot(aes(province,index,fill = location))+
-  geom_col(color = alpha("white",0.5))+coord_flip()+
+  geom_chicklet(radius = unit(2,"pt"),
+                color = alpha("white",0.5))+
+  coord_flip()+
   # geom_hline(yintercept = qqq[[2]],linetype = "dashed",color = "black")+
   # geom_hline(yintercept = qqq[[3]],linetype = "dashed",color = "black")+
   # geom_hline(yintercept = qqq[[4]],linetype = "dashed",color = "black")+
@@ -854,39 +856,136 @@ beta %>% slice(1:4) %>% bind_rows(add) %>% bind_rows(other) %>%
 
 
 ```{r echo=FALSE}
-load("mvb.rda")
-mvb %>% pivot_wider(names_from = period,values_from = c(marginal,t)) %>% 
-  set_names(c("省市","地区","第一期边际垂直beta","第一期半期收敛系数",
-              "第二期边际垂直beta","第二期半期收敛系数")) %>% 
-  select(-地区) %>% 
-  arrange(第一期边际垂直beta) %>% 
-  select(1,2,4,3,5) %>% 
-  mutate(
-    across(
-      where(is.numeric),
-     ~ round(.x,3)
-    )
-  ) %>% knitr::kable()
+load("beta_reg.rda")
+beta_reg %>% knitr::kable()
 ```
 
 
 ```{r echo=FALSE}
+#####################################################################
+# 动态展示图
 load("mvb.rda")
+
+group_sort <- function(df,group_var,id_var,target_var) {
+  group_var <- enquo(group_var)
+  id_var <- enquo(id_var)
+  target_var <- enquo(target_var)
+  
+  map_df(
+    df %>% count(!!group_var) %>% pull(1),
+    ~ df %>% dplyr::filter(!!group_var == .x) %>% arrange(!!target_var)
+  ) %>%
+    mutate(!!id_var := fct_inorder(!!id_var,ordered = T))
+} # end of "group_sort"
+
+# 2010~2014年柱状图
+
+mvb %>% dplyr::filter(period == "2010~2014年") %>% 
+  group_sort(location,province,mar) %>% pull(1) -> lev
+
 mvb %>% 
-  group_sort(location,province,marginal) %>% 
-  ggplot(aes(marginal,province,fill = location))+
-  geom_col()+scale_colour_ggthemr_d()+
-  # geom_text_repel(size = 3)+
+  mutate(
+    province = factor(province,levels = lev)
+  ) %>% dplyr::filter(period == "2010~2014年") %>% 
+  ggplot(aes(province,mar,fill = location))+
+  # geom_chicklet(radius = unit(2,"pt"),position = "dodge")+
+  geom_col(position = "dodge")+
+  scale_colour_ggthemr_d()+
+  scale_x_discrete(labels = function(x) str_wrap(x,2))+
+  theme(
+    text = element_text(family = cnfont),
+    legend.position = "bottom",
+    plot.title = element_text(hjust = 0.5),
+    axis.text.x.bottom = element_text(size = 8))+
+  scale_fill_manual(values = c(
+    alpha("black",0.2),"darkgrey",alpha("black",0.6)
+  ))+
+  labs(x = "",y = "",fill = "地区",title = "2010~2014年") -> p1
+
+#####################################################################
+
+# 2015~2019年柱状图
+
+mvb %>% dplyr::filter(period == "2015~2019年") %>% 
+  group_sort(location,province,mar) %>% pull(1) -> lev
+
+mvb %>% 
+  mutate(
+    province = factor(province,levels = lev)
+  ) %>% dplyr::filter(period == "2015~2019年") %>% 
+  ggplot(aes(province,mar,fill = location))+
+  # geom_chicklet(radius = unit(2,"pt"),position = "dodge")+
+  geom_col(position = "dodge")+
+  scale_colour_ggthemr_d()+
+  scale_x_discrete(labels = function(x) str_wrap(x,2))+
+  theme(
+    text = element_text(family = cnfont),
+    legend.position = "bottom",
+    plot.title = element_text(hjust = 0.5),
+    axis.text.x.bottom = element_text(size = 8))+
+  scale_fill_manual(values = c(
+    alpha("black",0.2),"darkgrey",alpha("black",0.6)
+  ))+
+  labs(x = "",y = "",fill = "地区",title = "2015~2019年") -> p2
+
+
+library(patchwork)
+(p1+p2)+plot_layout(guides = 'collect')&theme(legend.position = "bottom")
+
+```
+
+解释区域下降时使用“虹吸效应”。
+
+
+```{r echo=FALSE}
+load("mvb.rda")
+
+group_sort <- function(df,group_var,id_var,target_var) {
+  group_var <- enquo(group_var)
+  id_var <- enquo(id_var)
+  target_var <- enquo(target_var)
+  
+  map_df(
+    df %>% count(!!group_var) %>% pull(1),
+    ~ df %>% dplyr::filter(!!group_var == .x) %>% arrange(!!target_var)
+  ) %>%
+    mutate(!!id_var := fct_inorder(!!id_var,ordered = T))
+} # end of "group_sort"
+
+mvb %>% 
+  dplyr::filter(period %in% c("2010~2014年","2015~2019年")) %>% 
+  select(1:4) %>% pivot_wider(names_from = period,values_from = mar) %>% 
+  mutate(gap = `2015~2019年` - `2010~2014年`) %>% 
+  arrange(abs(gap)) %>% select(1:2,5) %>% pull(1) -> lev
+
+
+mvb %>% select(1:4) %>% 
+  mutate(province = factor(province,levels = lev)) %>% 
+  pivot_wider(names_from = period,values_from = mar) %>% 
+  mutate(tag = (`2015~2019年`>= `2010~2014年`)) %>% 
+  dplyr::filter(province != "贵州") %>% 
+  ggplot()+
+  geom_point(aes(`2010~2014年`,province,shape = location),
+             color = "lightgrey",size = 3)+
+  geom_point(aes(`2015~2019年`,province,shape = location),
+             color = "darkgrey" ,size = 3)+
+  geom_segment(
+    aes(x=`2010~2014年`,xend = `2015~2019年`,y = province,yend = province,
+        linetype = tag),
+    show.legend = F,
+    arrow = arrow(length = unit(0.05, "inches"),type = "closed",angle = 25))+
+  geom_vline(xintercept = 0,color = "black",linetype = "dotted")+
+  scale_colour_ggthemr_d()+coord_flip()+
   theme(
     text = element_text(family = cnfont),
     plot.margin = margin(20,20,20,20),
-    legend.position = "bottom",
-    axis.text.y.left = element_text(size = 8)
+    legend.position = "bottom"
   )+
-  scale_fill_manual(values = c(alpha("black",0.2),"darkgrey",alpha("black",0.6)))+
-  labs(x = "",y = "",fill = "地区")+
-  facet_wrap(.~period,scales = "free_x") 
+  scale_y_discrete(labels = function(x) str_wrap(x,2))+
+  scale_x_continuous(n.breaks = 10)+
+  labs(x = "",y = "",shape = "地区")
 ```
+
 
 
 
