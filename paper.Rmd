@@ -791,12 +791,6 @@ final_index %>%
 
 ### 2.营商环境边际垂直$\beta$收敛分析
 
-\begin{equation}
-\ln \left(\frac{Index_{i, t+1}}{Index_{i t}}\right)=\alpha+\beta \ln Index_{i t}+\eta_{t}+\lambda_{i}+\varepsilon_{i t}
-\end{equation}
-
-
-
 
 1、从经济大背景下：经济新常态
 
@@ -807,53 +801,7 @@ final_index %>%
 从14年进行分割可以保持两段的年度跨期比较的均匀，从为尽可能的减少由于样本数量而造成的差异。
 
 
-#### （1）绝对$\beta$收敛模型
-
-```{r echo=FALSE}
-##########################################################################
-# 绝对beta  收敛
-
-library(docxtractr)
-
-read_docx("beta.docx") %>% 
-  docx_extract_tbl(tbl_number = 1,header = T) %>% 
-  slice(n=1) %>% as.character() -> name
-
-name[[1]] <- "模型"
-
-read_docx("beta.docx") %>% 
-  docx_extract_tbl(tbl_number = 1,header = T) %>%
-  slice(n=-1) %>% set_names(name) %>% 
-  slice(n = -c(3:138)) %>% 
-  mutate(
-    模型 = case_when(
-      模型 == "_cons" ~ "常数项",
-      模型 == "N" ~ "观测值",
-      模型 == "r2_o" ~ "整体拟合优度",
-      模型 == "" ~ " ",
-      T ~ "贝塔系数"
-    )
-  ) -> beta
-
-beta %>% complete(模型 = c(beta %>% pull(1),"时间固定效应","地区固定效应")) %>% 
-  slice(n = c(5,7)) -> add
-
-beta %>% slice(-c(1:4)) -> other
-
-beta %>% slice(1:4) %>% bind_rows(add) %>% bind_rows(other) %>% 
-  mutate(
-    across(
-      everything(),
-      ~ if_else(is.na(.x),"控制",.x)
-    )
-  ) %>% knitr::kable()
-```
-
-可以看出在同时控制住地区和时间固定效应的情况下，无论是全国层面还是具体到三大区域层面，$\beta$系数均显著为负，说明各个层面均支持绝对$\beta$收敛机制，也即虽然不同省市的营商环境存在着绝对的差异，但是营商环境较好区域的发展速度要低于营商环境较差的区域，这也导致在营商环境的发展差距呈现不断缩小的趋势，营商环境欠发达地区存在一定的追赶现象。其次，就数值的大小来说，从西部地区到东部地区再到中部地区，$\beta$系数的绝对值依次递减，说明在三大区域中，西部地区差异的收敛速度要远快于其他两个地区，对此可能的解释是在丝绸之路经济带的发展的大背景下，依托中央的政策扶持，西部地区有了更多的机会向外部发达地区不断学习和借鉴。同时，随着川渝城市群的一体化建设，西部地区内部各省市之间的联系也更加的紧密，初始禀赋较差的省市利用周边发达省市的“溢出效应”，并结合自身的后发优势从而实现了营商环境的快速发展，也便使其与营商环境较发达地区间的差异不断减小。
-
-
-#### （2）边际垂直$\beta$收敛模型
-
+#### （1）回归结果分析
 
 ```{r echo=FALSE}
 load("beta_reg.rda")
@@ -861,10 +809,26 @@ beta_reg %>% knitr::kable()
 ```
 
 
+上表展示了$\beta$收敛模型的回归结果，并按照考察期的时间跨度分为整个样本考察期、经济新常态之前和经济新常态之后。结合回归方程式（）具体而言，等式右边的$\frac{1}{T}log(\frac{y_{it}}{y_{i0}})$是$T$时段内，营商环境指标的平均对数增长率，而等式右边的解释变量$log(y_{i0})$为$i$地区在期初时营商环境指标的对数值，当其对被解释变量的回归系数为负时，说明两者是反向相关关系的，也即当一个地区营商环境指标的初始禀赋越高，那么其后期发展的速度是越慢的，也即营商环境指标发展是收敛的；而若系数为正则说明发散，也即存在“发达的地方越发发达，落后的地方越发落后”的现象（刘 2018）。
+
+
+
+首先对于全国层面来说，其$\alpha$估计系数在任意考察期内均显著为负，且具体数值的变化程度并不大，说明$\beta$收敛机制在全国层面上是稳定存在的。结合$\beta$系数的数值，全国层面的$\beta$收敛系数为0.042，也即说明营商环境指标欠发达的地区以每年4.2%的平均速度向营商环境指标发展较好的地区靠近。从半期收敛系数来看，以目前的收敛速度，要使全国层面的营商环境指标差异缩小为初始差异一半大致需要16年，所以要近一步提高对营商环境的重视程度，尤其是起步较晚的地区。缩小地区差异，实现高质量发展中的协调发展的任务刻不容缓。其次，对于三大区域而言，除了中部地区外，东部地区和西部地区均存在统计意义上显著的$\beta$收敛机制。中部地区不存在收敛的结果和前文中其区域间基尼系数不断上升的趋势和KDE的多极分布情况相符合。对于东部地区和西部地区而言，$\beta$系数的绝对值大小依次递减，说明西部地区的收敛速度最大，追赶效应最明显。但是两者的$\beta$系数在两个子考察期内的变化情况截然相反，对此可能的解释是在经济进入新常态后，。。。。（<span style='color:red'>怎么解释！？</span>）尽管如此，在整个考察期内西部地区的收敛速度近似为东部地区的5倍，可能的原因是在丝绸之路经济带的发展的大背景下，依托中央的政策扶持，西部地区有了更多的机会向外部发达地区不断学习和借鉴。同时，随着川渝城市群的一体化建设，西部地区内部各省市之间的联系也更加的紧密，初始禀赋较差的省市利用周边发达省市的“溢出效应”，并结合自身的后发优势从而实现了营商环境的快速发展。
+
+
+
+
+
+#### （2）边际垂直$\beta$收敛模型
+
+在之前分析的基础之上，
+
+
+
 ```{r echo=FALSE}
 #####################################################################
 # 动态展示图
-load("mvb.rda")
+load("mvb_plot.rda")
 
 group_sort <- function(df,group_var,id_var,target_var) {
   group_var <- enquo(group_var)
@@ -878,55 +842,93 @@ group_sort <- function(df,group_var,id_var,target_var) {
     mutate(!!id_var := fct_inorder(!!id_var,ordered = T))
 } # end of "group_sort"
 
+
+#####################################################################
+
 # 2010~2014年柱状图
 
-mvb %>% dplyr::filter(period == "2010~2014年") %>% 
+mvb_plot %>% dplyr::filter(period == "2010~2014年") %>% 
   group_sort(location,province,mar) %>% pull(1) -> lev
 
-mvb %>% 
+
+mvb_plot %>% dplyr::filter(period == "2010~2014年") %>% 
+  transmute(
+    high_2 = mean(mar)+2*sd(mar),
+    high_1 = mean(mar)+1*sd(mar),
+    mean = mean(mar),
+    low_1 = mean(mar)-sd(mar),
+    low_2 = mean(mar)- 2*sd(mar)
+  ) %>% slice(n=1) %>% as.double()  -> aux
+
+
+mvb_plot %>% 
   mutate(
     province = factor(province,levels = lev)
   ) %>% dplyr::filter(period == "2010~2014年") %>% 
   ggplot(aes(province,mar,fill = location))+
   # geom_chicklet(radius = unit(2,"pt"),position = "dodge")+
   geom_col(position = "dodge")+
+  geom_hline(yintercept = aux[[1]],linetype = "dotted",color = "black")+
+  geom_hline(yintercept = aux[[2]],linetype = "dashed",color = "black")+
+  geom_hline(yintercept = aux[[4]],linetype = "dashed",color = "black")+
+  geom_hline(yintercept = aux[[5]],linetype = "dotted",color = "black")+
   scale_colour_ggthemr_d()+
   scale_x_discrete(labels = function(x) str_wrap(x,2))+
+  scale_y_continuous(n.breaks = 10)+
   theme(
     text = element_text(family = cnfont),
+    plot.margin = margin(20,20,20,20),
     legend.position = "bottom",
-    plot.title = element_text(hjust = 0.5),
-    axis.text.x.bottom = element_text(size = 8))+
+    plot.title = element_text(hjust = 0.5) 
+  )+
   scale_fill_manual(values = c(
     alpha("black",0.2),"darkgrey",alpha("black",0.6)
   ))+
   labs(x = "",y = "",fill = "地区",title = "2010~2014年") -> p1
 
+
+
 #####################################################################
 
 # 2015~2019年柱状图
 
-mvb %>% dplyr::filter(period == "2015~2019年") %>% 
+mvb_plot %>% dplyr::filter(period == "2015~2019年") %>% 
   group_sort(location,province,mar) %>% pull(1) -> lev
 
-mvb %>% 
+mvb_plot %>% dplyr::filter(period == "2015~2019年") %>% 
+  transmute(
+    high_2 = mean(mar)+2*sd(mar),
+    high_1 = mean(mar)+1*sd(mar),
+    mean = mean(mar),
+    low_1 = mean(mar)-sd(mar),
+    low_2 = mean(mar)- 2*sd(mar)
+  ) %>% slice(n=1) %>% as.double()  -> aux
+
+mvb_plot %>% 
   mutate(
     province = factor(province,levels = lev)
   ) %>% dplyr::filter(period == "2015~2019年") %>% 
   ggplot(aes(province,mar,fill = location))+
   # geom_chicklet(radius = unit(2,"pt"),position = "dodge")+
   geom_col(position = "dodge")+
+  geom_hline(yintercept = aux[[1]],linetype = "dotted",color = "black")+
+  geom_hline(yintercept = aux[[2]],linetype = "dashed",color = "black")+
+  geom_hline(yintercept = aux[[4]],linetype = "dashed",color = "black")+
+  geom_hline(yintercept = aux[[5]],linetype = "dotted",color = "black")+
   scale_colour_ggthemr_d()+
   scale_x_discrete(labels = function(x) str_wrap(x,2))+
+  scale_y_continuous(n.breaks = 10)+
   theme(
     text = element_text(family = cnfont),
+    plot.margin = margin(20,20,20,20),
     legend.position = "bottom",
-    plot.title = element_text(hjust = 0.5),
-    axis.text.x.bottom = element_text(size = 8))+
+    plot.title = element_text(hjust = 0.5) 
+  )+
   scale_fill_manual(values = c(
     alpha("black",0.2),"darkgrey",alpha("black",0.6)
   ))+
   labs(x = "",y = "",fill = "地区",title = "2015~2019年") -> p2
+
 
 
 library(patchwork)
@@ -938,7 +940,7 @@ library(patchwork)
 
 
 ```{r echo=FALSE}
-load("mvb.rda")
+load("mvb_plot.rda")
 
 group_sort <- function(df,group_var,id_var,target_var) {
   group_var <- enquo(group_var)
@@ -952,18 +954,18 @@ group_sort <- function(df,group_var,id_var,target_var) {
     mutate(!!id_var := fct_inorder(!!id_var,ordered = T))
 } # end of "group_sort"
 
-mvb %>% 
+mvb_plot %>% 
   dplyr::filter(period %in% c("2010~2014年","2015~2019年")) %>% 
   select(1:4) %>% pivot_wider(names_from = period,values_from = mar) %>% 
   mutate(gap = `2015~2019年` - `2010~2014年`) %>% 
   arrange(abs(gap)) %>% select(1:2,5) %>% pull(1) -> lev
 
 
-mvb %>% select(1:4) %>% 
+mvb_plot %>% select(1:4) %>% 
   mutate(province = factor(province,levels = lev)) %>% 
   pivot_wider(names_from = period,values_from = mar) %>% 
   mutate(tag = (`2015~2019年`>= `2010~2014年`)) %>% 
-  dplyr::filter(province != "贵州") %>% 
+  # dplyr::filter(province != "贵州") %>% 
   ggplot()+
   geom_point(aes(`2010~2014年`,province,shape = location),
              color = "lightgrey",size = 3)+
@@ -983,7 +985,7 @@ mvb %>% select(1:4) %>%
   )+
   scale_y_discrete(labels = function(x) str_wrap(x,2))+
   scale_x_continuous(n.breaks = 10)+
-  labs(x = "",y = "",shape = "地区")
+  labs(x = "",y = "",shape = "地区") 
 ```
 
 
@@ -1037,11 +1039,11 @@ moran %>%
   geom_smooth(method = "lm",se = F,linetype = "solid",color = "cyan")+
   scale_colour_ggthemr_d()+
   geom_point(size = 1.5,aes(color = location))+
-  geom_label_repel(box.padding = 4.5,label.padding = 0.2,
-                   max.overlaps = Inf,
-                   family = cnfont,min.segment.length = 0.001,
-                   size = 3.5
-                   )+
+  # geom_label_repel(box.padding = 4.5,label.padding = 0.2,
+  #                  max.overlaps = Inf,
+  #                  family = cnfont,min.segment.length = 0.001,
+  #                  size = 3.5
+  #                  )+
   scale_color_viridis_d()+
   # scale_color_manual(values = c("black","red","blue"))+
   labs(x="",y="",color = "地区")+
