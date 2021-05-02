@@ -813,7 +813,7 @@ beta_reg %>% knitr::kable()
 
 
 
-首先对于全国层面来说，其$\alpha$估计系数在任意考察期内均显著为负，且具体数值的变化程度并不大，说明$\beta$收敛机制在全国层面上是稳定存在的。结合$\beta$系数的数值，全国层面的$\beta$收敛系数为0.042，也即说明营商环境指标欠发达的地区以每年4.2%的平均速度向营商环境指标发展较好的地区靠近。从半期收敛系数来看，以目前的收敛速度，要使全国层面的营商环境指标差异缩小为初始差异一半大致需要16年，所以要近一步提高对营商环境的重视程度，尤其是起步较晚的地区。缩小地区差异，实现高质量发展中的协调发展的任务刻不容缓。其次，对于三大区域而言，除了中部地区外，东部地区和西部地区均存在统计意义上显著的$\beta$收敛机制。中部地区不存在收敛的结果和前文中其区域间基尼系数不断上升的趋势和KDE的多极分布情况相符合。对于东部地区和西部地区而言，$\beta$系数的绝对值大小依次递减，说明西部地区的收敛速度最大，追赶效应最明显。但是两者的$\beta$系数在两个子考察期内的变化情况截然相反，对此可能的解释是在经济进入新常态后，。。。。（<span style='color:red'>怎么解释！？</span>）尽管如此，在整个考察期内西部地区的收敛速度近似为东部地区的5倍，可能的原因是在丝绸之路经济带的发展的大背景下，依托中央的政策扶持，西部地区有了更多的机会向外部发达地区不断学习和借鉴。同时，随着川渝城市群的一体化建设，西部地区内部各省市之间的联系也更加的紧密，初始禀赋较差的省市利用周边发达省市的“溢出效应”，并结合自身的后发优势从而实现了营商环境的快速发展。
+首先对于全国层面来说，其$\alpha$估计系数在任意考察期内均显著为负，且具体数值的变化程度并不大，说明$\beta$收敛机制在全国层面上是稳定存在的。结合$\beta$系数的数值，全国层面的$\beta$收敛系数为0.042，也即说明营商环境指标欠发达的地区以每年4.2%的平均速度向营商环境指标发展较好的地区靠近。从半期收敛系数来看，以目前的收敛速度，要使全国层面的营商环境指标差异缩小为初始差异一半大致需要16年，所以要近一步提高对营商环境的重视程度，尤其是起步较晚的地区。缩小地区差异，实现高质量发展中协调发展的任务刻不容缓。其次，对于三大区域而言，除了中部地区外，东部地区和西部地区均存在统计意义上显著的$\beta$收敛机制。中部地区不存在收敛的结果和前文中其区域间基尼系数不断上升的趋势和KDE的多极分布情况相符合。对于东部地区和西部地区而言，$\beta$系数的绝对值大小依次递减，说明西部地区的收敛速度最大，追赶效应最明显。但是两者的$\beta$系数在两个子考察期内的变化情况截然相反，对此可能的解释是在经济进入新常态后，。。。。（<span style='color:red'>怎么解释！？</span>）尽管如此，在整个考察期内西部地区的收敛速度近似为东部地区的5倍，可能的原因是在丝绸之路经济带的发展的大背景下，依托中央的政策扶持，西部地区有了更多的机会向外部发达地区不断学习和借鉴。同时，随着川渝城市群的一体化建设，西部地区内部各省市之间的联系也更加的紧密，初始禀赋较差的省市利用周边发达省市的“溢出效应”，并结合自身的后发优势从而实现了营商环境的快速发展。
 
 
 
@@ -821,37 +821,30 @@ beta_reg %>% knitr::kable()
 
 #### （2）边际垂直$\beta$收敛模型
 
-在之前分析的基础之上，
-
+前文基于$\beta$收敛模型的估计系数对全国层面和三大区域层面的收敛情况做出了分析。为能研究不同省市在在全国层面收敛过程中的异质性，本文近一步使用边际垂直$\beta$收敛模型展开研究。下图展示了29个省市边际垂直$\beta$系数的大小关系^[由于贵州省的边际垂直$\beta$系数过大，属于离群值，参照Batog（2021）的做法，本文未在下图中直接展示，而是进行单独的说明。]，其中左侧区域为2010年至2014年的情况，右侧区域为2015年至2019年的情况。横轴为具体省市，纵轴为边际垂直$\beta$系数的大小，上下虚型线表示均值加减标准差，而上下点型线表示均值加减两倍标准差，四条辅助线用来判断省市在收敛过程中的贡献方向和大小，并依次将所有省市划分为“较大正向贡献”、“一般正向贡献”、“无明显贡献”、“一般负向贡献”和“较大负向贡献”5种类型
 
 
 ```{r echo=FALSE}
-#####################################################################
-# 动态展示图
-load("mvb_plot.rda")
-
-group_sort <- function(df,group_var,id_var,target_var) {
-  group_var <- enquo(group_var)
-  id_var <- enquo(id_var)
-  target_var <- enquo(target_var)
-  
-  map_df(
-    df %>% count(!!group_var) %>% pull(1),
-    ~ df %>% dplyr::filter(!!group_var == .x) %>% arrange(!!target_var)
-  ) %>%
-    mutate(!!id_var := fct_inorder(!!id_var,ordered = T))
-} # end of "group_sort"
+# 2010~2014年
 
 
-#####################################################################
 
-# 2010~2014年柱状图
+load("mvb.rda")
+load("ratio_sub1.rda")
+load("final_index.rda")
+library(patchwork)
 
-mvb_plot %>% dplyr::filter(period == "2010~2014年") %>% 
-  group_sort(location,province,mar) %>% pull(1) -> lev
+## 柱状图
 
+final_index %<>% 
+  mutate(index = (index-min(index))/(max(index)-min(index)))
 
-mvb_plot %>% dplyr::filter(period == "2010~2014年") %>% 
+mvb %>% dplyr::filter(period == "2010~2014年") %>% 
+  # dplyr::filter(province != "贵州") %>%
+  arrange(mar) %>% pull(1) -> lev
+
+mvb %>% dplyr::filter(period == "2010~2014年") %>% 
+  dplyr::filter(province != "贵州") %>% 
   transmute(
     high_2 = mean(mar)+2*sd(mar),
     high_1 = mean(mar)+1*sd(mar),
@@ -860,11 +853,11 @@ mvb_plot %>% dplyr::filter(period == "2010~2014年") %>%
     low_2 = mean(mar)- 2*sd(mar)
   ) %>% slice(n=1) %>% as.double()  -> aux
 
-
-mvb_plot %>% 
+mvb %>% 
   mutate(
     province = factor(province,levels = lev)
   ) %>% dplyr::filter(period == "2010~2014年") %>% 
+  # dplyr::filter(province != "贵州") %>% 
   ggplot(aes(province,mar,fill = location))+
   # geom_chicklet(radius = unit(2,"pt"),position = "dodge")+
   geom_col(position = "dodge")+
@@ -874,118 +867,187 @@ mvb_plot %>%
   geom_hline(yintercept = aux[[5]],linetype = "dotted",color = "black")+
   scale_colour_ggthemr_d()+
   scale_x_discrete(labels = function(x) str_wrap(x,2))+
-  scale_y_continuous(n.breaks = 10)+
+  scale_y_continuous(n.breaks = 6)+
   theme(
     text = element_text(family = cnfont),
-    plot.margin = margin(20,20,20,20),
     legend.position = "bottom",
-    plot.title = element_text(hjust = 0.5) 
+    plot.title = element_text(hjust = 0.5),
+    axis.text.x.bottom = element_text(size = 8)
   )+
   scale_fill_manual(values = c(
     alpha("black",0.2),"darkgrey",alpha("black",0.6)
   ))+
-  labs(x = "",y = "",fill = "地区",title = "2010~2014年") -> p1
+  labs(x = "",y = "",fill = "地区") -> sub1_1
 
 
+## 散点图
 
-#####################################################################
-
-# 2015~2019年柱状图
-
-mvb_plot %>% dplyr::filter(period == "2015~2019年") %>% 
-  group_sort(location,province,mar) %>% pull(1) -> lev
-
-mvb_plot %>% dplyr::filter(period == "2015~2019年") %>% 
+ratio_sub1 %>%   
   transmute(
-    high_2 = mean(mar)+2*sd(mar),
-    high_1 = mean(mar)+1*sd(mar),
-    mean = mean(mar),
-    low_1 = mean(mar)-sd(mar),
-    low_2 = mean(mar)- 2*sd(mar)
-  ) %>% slice(n=1) %>% as.double()  -> aux
+    mean = mean(ratio),
+    sd = sd(ratio),
+    low = mean-sd,
+    high = mean+sd
+  ) %>% slice(n=1) %>% as.double() %>% .[-2] -> aux
 
-mvb_plot %>% 
+ratio_sub1 %>% 
+  arrange(ratio) %>% 
+  mutate(province = fct_inorder(province)) %>% 
+  # dplyr::filter(province == "广东")
   mutate(
-    province = factor(province,levels = lev)
-  ) %>% dplyr::filter(period == "2015~2019年") %>% 
-  ggplot(aes(province,mar,fill = location))+
-  # geom_chicklet(radius = unit(2,"pt"),position = "dodge")+
-  geom_col(position = "dodge")+
-  geom_hline(yintercept = aux[[1]],linetype = "dotted",color = "black")+
-  geom_hline(yintercept = aux[[2]],linetype = "dashed",color = "black")+
-  geom_hline(yintercept = aux[[4]],linetype = "dashed",color = "black")+
-  geom_hline(yintercept = aux[[5]],linetype = "dotted",color = "black")+
-  scale_colour_ggthemr_d()+
-  scale_x_discrete(labels = function(x) str_wrap(x,2))+
-  scale_y_continuous(n.breaks = 10)+
+    index = case_when(
+      index<=0.2 ~"low",
+      (index>0.2)&(index <= 0.4) ~"mid",
+      (index>0.4)&(index<=0.6) ~"high",
+      index>0.6 ~"extra"
+    ),
+    index = factor(
+      index,
+      levels = c("low","mid","high","extra")
+    )
+  ) %>% 
+  ggplot()+
+  geom_point(
+    aes(province,ratio,size = index),
+    show.legend = F,color = "darkgrey")+
+  scale_size_manual(values = c(2.5,3.5,3.5,4.1))+
+  geom_hline(yintercept = aux[[1]],color = "black",linetype = "dashed")+
+  geom_hline(yintercept = aux[[2]],color = "black",linetype = "dotted")+
+  geom_hline(yintercept = aux[[3]],color = "black",linetype = "dotted")+
   theme(
     text = element_text(family = cnfont),
-    plot.margin = margin(20,20,20,20),
-    legend.position = "bottom",
-    plot.title = element_text(hjust = 0.5) 
+    axis.text.x.bottom = element_text(size = 7.5),
+    axis.title.y.left = element_text(angle = 0)
   )+
-  scale_fill_manual(values = c(
-    alpha("black",0.2),"darkgrey",alpha("black",0.6)
-  ))+
-  labs(x = "",y = "",fill = "地区",title = "2015~2019年") -> p2
+  scale_x_discrete(labels = function(x) str_wrap(x,2))+
+  scale_y_continuous(labels = function(x) percent(x))+
+  labs(x="",y=str_wrap("年平均增长率",2)) -> sub1_2
 
 
+## 合并两者
 
-library(patchwork)
-(p1+p2)+plot_layout(guides = 'collect')&theme(legend.position = "bottom")
+
+(sub1_2+sub1_1)+
+  plot_layout(guides = 'collect')&theme(legend.position = "bottom") 
+
 
 ```
+
+
+
+
+
+
 
 解释区域下降时使用“虹吸效应”。
 
 
+
+为近一步展示省市在不同子考察期中贡献的动态变化，依照前后两个子考察期边际垂直$\beta$系数变化的绝对大小，按照从小到大的顺序做出了如图-？所示的哑铃图。其中浅色点表示第一个子考察内的边际垂直$\beta$系数，深色点表示第二个子考察期内的边际垂直$\beta$系数；虚线表示边际垂直$\beta$系数变大，实现表示变小。
+
 ```{r echo=FALSE}
-load("mvb_plot.rda")
-
-group_sort <- function(df,group_var,id_var,target_var) {
-  group_var <- enquo(group_var)
-  id_var <- enquo(id_var)
-  target_var <- enquo(target_var)
-  
-  map_df(
-    df %>% count(!!group_var) %>% pull(1),
-    ~ df %>% dplyr::filter(!!group_var == .x) %>% arrange(!!target_var)
-  ) %>%
-    mutate(!!id_var := fct_inorder(!!id_var,ordered = T))
-} # end of "group_sort"
-
-mvb_plot %>% 
-  dplyr::filter(period %in% c("2010~2014年","2015~2019年")) %>% 
-  select(1:4) %>% pivot_wider(names_from = period,values_from = mar) %>% 
-  mutate(gap = `2015~2019年` - `2010~2014年`) %>% 
-  arrange(abs(gap)) %>% select(1:2,5) %>% pull(1) -> lev
+# 2015~2019年
 
 
-mvb_plot %>% select(1:4) %>% 
-  mutate(province = factor(province,levels = lev)) %>% 
-  pivot_wider(names_from = period,values_from = mar) %>% 
-  mutate(tag = (`2015~2019年`>= `2010~2014年`)) %>% 
-  # dplyr::filter(province != "贵州") %>% 
-  ggplot()+
-  geom_point(aes(`2010~2014年`,province,shape = location),
-             color = "lightgrey",size = 3)+
-  geom_point(aes(`2015~2019年`,province,shape = location),
-             color = "darkgrey" ,size = 3)+
-  geom_segment(
-    aes(x=`2010~2014年`,xend = `2015~2019年`,y = province,yend = province,
-        linetype = tag),
-    show.legend = F,
-    arrow = arrow(length = unit(0.05, "inches"),type = "closed",angle = 25))+
-  geom_vline(xintercept = 0,color = "black",linetype = "dotted")+
-  scale_colour_ggthemr_d()+coord_flip()+
+
+load("mvb.rda")
+load("final_index.rda")
+load("ratio_sub2.rda")
+library(patchwork)
+
+## 柱状图
+
+final_index %<>% 
+  mutate(index = (index-min(index))/(max(index)-min(index)))
+
+mvb %>% dplyr::filter(period == "2015~2019年") %>% 
+  #dplyr::filter(province != "贵州") %>% 
+  arrange(mar) %>% pull(1) -> lev
+
+mvb %>% dplyr::filter(period == "2015~2019年") %>% 
+  dplyr::filter(province != "贵州") %>% 
+  transmute(
+    high_2 = mean(mar)+2*sd(mar),
+    high_1 = mean(mar)+1*sd(mar),
+    mean = mean(mar),
+    low_1 = mean(mar)-sd(mar),
+    low_2 = mean(mar)- 2*sd(mar)
+  ) %>% slice(n=1) %>% as.double()  -> aux
+
+mvb %>% 
+  mutate(
+    province = factor(province,levels = lev)
+  ) %>% dplyr::filter(period == "2015~2019年") %>% 
+  #dplyr::filter(province != "贵州") %>% 
+  ggplot(aes(province,mar,fill = location))+
+  # geom_chicklet(radius = unit(2,"pt"),position = "dodge")+
+  geom_col(position = "dodge")+
+  geom_hline(yintercept = aux[[1]],linetype = "dotted",color = "black")+
+  geom_hline(yintercept = aux[[2]],linetype = "dashed",color = "black")+
+  geom_hline(yintercept = aux[[4]],linetype = "dashed",color = "black")+
+  geom_hline(yintercept = aux[[5]],linetype = "dotted",color = "black")+
+  scale_colour_ggthemr_d()+
+  scale_x_discrete(labels = function(x) str_wrap(x,2))+
+  scale_y_continuous(n.breaks = 5)+
   theme(
     text = element_text(family = cnfont),
-    plot.margin = margin(20,20,20,20),
-    legend.position = "bottom"
+    legend.position = "bottom",
+    plot.title = element_text(hjust = 0.5),
+    axis.text.x.bottom = element_text(size = 8)
   )+
-  scale_y_discrete(labels = function(x) str_wrap(x,2))+
-  scale_x_continuous(n.breaks = 10)+
-  labs(x = "",y = "",shape = "地区") 
+  scale_fill_manual(values = c(
+    alpha("black",0.2),"darkgrey",alpha("black",0.6)
+  ))+
+  labs(x = "",y = "",fill = "地区") -> sub2_1
+
+
+## 散点图 
+
+ratio_sub2 %>%   
+  transmute(
+    mean = mean(ratio),
+    sd = sd(ratio),
+    low = mean-sd,
+    high = mean+sd
+  ) %>% slice(n=1) %>% as.double() %>% .[-2] -> aux
+
+ratio_sub2 %>% 
+  arrange(ratio) %>% 
+  mutate(province = fct_inorder(province)) %>% 
+  # dplyr::filter(province == "广东")
+  mutate(
+    index = case_when(
+      index<=0.2 ~"low",
+      (index>0.2)&(index <= 0.4) ~"mid",
+      (index>0.4)&(index<=0.6) ~"high",
+      index>0.6 ~"extra"
+    ),
+    index = factor(
+      index,
+      levels = c("low","mid","high","extra")
+    )
+  ) %>% 
+  ggplot()+
+  geom_point(
+    aes(province,ratio,size = index),
+    show.legend = F,color = "darkgrey")+
+  scale_size_manual(values = c(2,2.5,3.5,4.1))+
+  geom_hline(yintercept = aux[[1]],color = "black",linetype = "dashed")+
+  geom_hline(yintercept = aux[[2]],color = "black",linetype = "dotted")+
+  geom_hline(yintercept = aux[[3]],color = "black",linetype = "dotted")+
+  theme(
+    text = element_text(family = cnfont),
+    axis.text.x.bottom = element_text(size = 7.5),
+    axis.title.y.left = element_text(angle = 0)
+  )+
+  scale_x_discrete(labels = function(x) str_wrap(x,2))+
+  scale_y_continuous(labels = function(x) percent(x))+
+  labs(x="",y=str_wrap("年平均增长率",2)) -> sub2_2
+
+
+(sub2_2+sub2_1)+
+  plot_layout(guides = 'collect')&theme(legend.position = "bottom") 
+
 ```
 
 
