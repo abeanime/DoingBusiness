@@ -36,7 +36,7 @@ library(patchwork)
 ## 摘要
 研究目标：。研究方法：。研究发现：。研究创新：。研究价值：。
 
-**关键词：营商环境、Dagum基尼系数、自适应核密度估计、边际垂直$\beta$收敛、Moran’s I指数**
+**关键词：营商环境指标体系、Dagum基尼系数、自适应核密度估计、边际垂直$\beta$收敛、Moran’s I指数**
 
 
 ## 引言
@@ -124,13 +124,13 @@ p_{j h}=\int_{0}^{\infty}dF_{h}(y) \int_{0}^{y}(y-x)dF_{j}(x) \tag{11}
 虽然Dagum基尼系数可通过对营商环境指标的区域差异进行分解而得到描述差异特征和来源的具体数值，但是并不能对营商环境指标的分布曲线进行可视化分析，为了近一步研究中国营商环境指标分布形态和动态演进特征，本文近一步使用核密度估计曲线（KDE）来展开实证研究。目前，对于区域指标的动态分布演进的实证方法主要为马尔科夫链法和核密度估计法。其中，马尔科夫链法的使用往往要满足两个前提假定。第一，一阶马尔科夫链（First-order Markov Chain），即指标未来的演变状态仅受当前状态的影响，而不受过去历史的影响；第二，时间同质性（Time Homogeneity），即在样本考察期内，马尔科夫转移矩阵是时不变的。而核密度估计法则并不需要对分布的形式作出事先假定，而是基于数据的自身信息使用连续密度曲线对随机变量的概率密度进行估计。因此，核密度估计具有较弱的模型依赖性，最终得到的估计结果具有较强的稳健性。假设$f(x)$为中国营商环境指标$x$的密度函数，则有：
 
 \begin{equation}
-f(x)=\frac{1}{N h} \sum_{i=1}^{N} K\left(\frac{X_{i}-x}{h}\right) \tag{11}
+f(x)=\frac{1}{N h} \sum_{i=1}^{N} K\left(\frac{X_{i}-x}{h}\right) \tag{12}
 \end{equation}
 
 其中，$N$为观测值个数，$X_i$表示独立同分布的观测值，$x$则表示观测值的均值，$K(\cdot)$表示核密度函数，$h$为带宽。由于核密度的估计对带宽的选择相当敏感，因此带宽选择的合适与否便直接影响到最后估计结果的精确性。具体来说，在数据和核函数不变时，带宽的上升会导致估计的方差下降，曲线更加平滑，但估计的偏差却会上升，反之则反。对于带宽的选择，常见的方式是Sliverman的拇指法则（1986）和交叉验证法，但是这两种方法所得的最优带宽为为常数，而在密度并不接近正态时，则可能会产生泛化极差的估计。此外，Burkhauser（1999）指出尾端观测值的信息往往要少于中间的观测值，所以在数据较为稀疏的区域选择固定带宽会过度的平滑，整体的密度形状将会扭曲。为解决上述问题，本文使用自适应带宽核密度法（Adaptive Bandwidth Kernel Density Method），其基本思想是先对密度进行逐点估计，得到一组针对个体观测值的局部带宽系数，然后基于这组数据构建自适应带宽，从而实现了带宽随着样本的位置而变化。也即自适应带宽核密度法是基于固定带宽核密度函数的基础上，通过修正带宽参数而得到的，其具体数学表达式如式（12）所示：
 
 \begin{equation}
-f(x)=\frac{1}{N} \sum_{i=1}^{N} \frac{ w_{i}}{\lambda_{i}h_{N}} K\left(\frac{X_{i}-x}{\lambda_{i}h_{N} }\right) \tag{12}
+f(x)=\frac{1}{N} \sum_{i=1}^{N} \frac{ w_{i}}{\lambda_{i}h_{N}} K\left(\frac{X_{i}-x}{\lambda_{i}h_{N} }\right) \tag{13}
 \end{equation}
 
 其中，$w_i$为抽样权重；$h_N$为固定带宽法下计算得到的带宽；$\lambda_i$为带宽调整因子（Bandwidth Adjustment Factors）；$\lambda_i$和$h_N$的乘积构成了局部带宽。
@@ -138,14 +138,14 @@ f(x)=\frac{1}{N} \sum_{i=1}^{N} \frac{ w_{i}}{\lambda_{i}h_{N}} K\left(\frac{X_{
 自适应核密度估计过程通常分为两个阶段。第一阶段，基于固定带宽法先进行一次先导密度估计（Pilot Density Estimate）；第二阶段，基于上一步的结果，由式（13）计算出带宽调整因子。
 
 \begin{equation}
-\lambda_{i}=\left[\frac{e^{\frac{\sum_{j=1}^{N} w_{j}log f(x_i)}{N}}}{f(x_i)}\right]^{\alpha}  \tag{13}
+\lambda_{i}=\left[\frac{e^{\frac{\sum_{j=1}^{N} w_{j}log f(x_i)}{N}}}{f(x_i)}\right]^{\alpha}  \tag{14}
 \end{equation}
 其中，$\alpha$称为敏感性系数，在0~1内进行取值，不难发现当$\alpha$取为0时，自适应核密度估计便退化为常数带宽的核密度估计。根据Abramson（1982）提出的平方根定律（Square Root Law），当$\alpha$为0.5时，自适应核密度估计比普通核密度估计有更小的估计偏误。
 
 在进行核密度估计时，往往需要确定核函数，而核函数根据其表达形式的差别可分为高斯核、三角核、四角核以及Epanechnikov核等，本文使用较为常用的高斯核密度函数对全国整体和三大区域营商环境指标的动态分布演变进行估计。最终，高斯核的自适应核密度函数为：
 
 \begin{equation}
-f(x) = \frac{1}{\sqrt{2\pi}Nh_N}\sum_{i = 1}^{N}\frac{e^{-\frac{1}{2}(\frac{X_i}{\lambda_ih_N})^2}}{\lambda_i} \tag{14}
+f(x) = \frac{1}{\sqrt{2\pi}Nh_N}\sum_{i = 1}^{N}\frac{e^{-\frac{1}{2}(\frac{X_i}{\lambda_ih_N})^2}}{\lambda_i} \tag{15}
 \end{equation}
 
 
@@ -160,7 +160,7 @@ f(x) = \frac{1}{\sqrt{2\pi}Nh_N}\sum_{i = 1}^{N}\frac{e^{-\frac{1}{2}(\frac{X_i}
 $\sigma$收敛是指随着时间的推移不同地区的营商环境指标偏离整体平均的差异呈现出逐渐减小的趋势，其常见的测度指标有变异系数、基尼系数和泰尔指数等。参照大多数文献的做法，本文使用变异系数来测度营商环境指标均等化的$\sigma$收敛，其具体计算公式如下所示：
 
 \begin{equation}
-\sigma_{t}=\frac{\sqrt{\frac{1}{n} \sum_{i=1}^{n}\left(Index_{i t}-\frac{1}{n} \sum_{i=1}^{n} Index_{i t}\right)^{2}}} { \frac{1}{n} \sum_{i=1}^{n} Index_{i t}} \tag{15}
+\sigma_{t}=\frac{\sqrt{\frac{1}{n} \sum_{i=1}^{n}\left(Index_{i t}-\frac{1}{n} \sum_{i=1}^{n} Index_{i t}\right)^{2}}} { \frac{1}{n} \sum_{i=1}^{n} Index_{i t}} \tag{16}
 \end{equation}
 
 其中，$Index_{it}$为$t$年第$i$个省市的营商环境得分。若$\sigma_t$随时间的推移而减小，则说明各省市的营商环境指标差距在不断减小，具有向均值收敛的趋势。
@@ -171,13 +171,13 @@ $\sigma$收敛是指随着时间的推移不同地区的营商环境指标偏离
 边际垂直$\beta$收敛模型是基于传统$\beta$收敛模型，以全样本下的$\beta$系数（传统$\beta$收敛模型的估计结果）和子样本下$\beta$系数的差值作为捕捉每个个体在收敛或发散过程中起到的边际贡献，并依照个体的异质性以找出影响经济指标收敛或发散的影响因素。因此，有必要先介绍传统的$\beta$收敛模型。在仅考察一期的情况下，传统的$\beta$收敛模型可表示为：
 
 \begin{equation}
-log \left(\frac{y_{i,t+1}}{y_{i t}}\right)= \alpha_0+\alpha_1 log \left(y_{i t}\right)+\lambda_i+\eta_t+\mu_{it} \tag{16}
+log \left(\frac{y_{i,t+1}}{y_{i t}}\right)= \alpha_0+\alpha_1 log \left(y_{i t}\right)+\lambda_i+\eta_t+\mu_{it} \tag{17}
 \end{equation}
 
 其中，$\alpha_0$为常数项；$(e^{-\beta}-1)$为重点关注系数，若其显著为负则说明营商环境指标存在$\beta$收敛性质，反之则说明发散；$\lambda_i$和$\eta_t$分别表示个体（省市）固定效应和时间固定效应；$\mu_{it}$表示误差项。近一步，$\beta$收敛模型中的$\beta$系数和$\alpha_1$的数学关系为：
 
 \begin{equation}
-\alpha_1 = -(1-e^{-\beta}) \tag{17}
+\alpha_1 = -(1-e^{-\beta}) \tag{18}
 \end{equation}
 
 
@@ -203,7 +203,7 @@ tibble(
 除此之外，在$\beta$收敛分析中，半期收敛系数（Half-life of Convergence Coefficient）也比较常用，其计算方法如下式所示：
 
 \begin{equation}
-T_{\frac{1}{2}} = \frac{log2}{\beta} \tag{18}
+T_{\frac{1}{2}} = \frac{log2}{\beta} \tag{19}
 \end{equation}
 
 半期收敛系数的经济学意义为：各地区经济指标的差异缩小为初始差异一半时所经历的时间（Izabela 2016），其基本作用是以当下的收敛速度，预测达到稳态均衡时所需要的时间。
@@ -212,13 +212,13 @@ T_{\frac{1}{2}} = \frac{log2}{\beta} \tag{18}
 
 
 \begin{equation}
-\Delta\beta_i = \hat\beta - \hat\beta_{i}^{n-1} \tag{19}
+\Delta\beta_i = \hat\beta - \hat\beta_{i}^{n-1} \tag{20}
 \end{equation}
 
 其中，$\hat\beta$为整体收敛速度（General Convergence Speed）；$\hat\beta_{i}^{n-1}$为除去$i$地区后的收敛速度；两者之差$\Delta\beta_i$表示$i$地区的边际垂直收敛速度，也即$i$地区在收敛过程中的边际贡献，当其为正数时，说明$i$地区在整体的收敛过程中起到了正向的推动作用，且数值越大这种边际贡献也就越大。对于半期收敛系数，其计算方式类似：
 
 \begin{equation}
-\Delta T_{\frac{1}{2},i} = \hat T_{\frac{1}{2}}-\hat T^{n-1}_{\frac{1}{2},i} \tag{20}
+\Delta T_{\frac{1}{2},i} = \hat T_{\frac{1}{2}}-\hat T^{n-1}_{\frac{1}{2},i} \tag{21}
 \end{equation}
 
 假定$\Delta T_{\frac{1}{2},i}$为负且绝对值为$t_0$时，对此的解释为：由于$i$区域的影响，导致差异缩小为初始差异一般时所需要的时间减少了$t_0$年。
@@ -821,7 +821,7 @@ beta_reg %>% knitr::kable()
 
 #### （2）边际垂直$\beta$收敛模型
 
-前文基于$\beta$收敛模型的估计系数对全国层面和三大区域层面的收敛情况做出了分析。为能研究不同省市在在全国层面收敛过程中的异质性，本文近一步使用边际垂直$\beta$收敛模型展开研究。下图展示了29个省市边际垂直$\beta$系数的大小关系^[由于贵州省的边际垂直$\beta$系数过大，属于离群值，参照Batog（2021）的做法，本文未在下图中直接展示，而是进行单独的说明。]，其中左侧区域为2010年至2014年的情况，右侧区域为2015年至2019年的情况。横轴为具体省市，纵轴为边际垂直$\beta$系数的大小，上下虚型线表示均值加减标准差，而上下点型线表示均值加减两倍标准差，四条辅助线用来判断省市在收敛过程中的贡献方向和大小，并依次将所有省市划分为“较大正向贡献”、“一般正向贡献”、“无明显贡献”、“一般负向贡献”和“较大负向贡献”5种类型
+前文基于$\beta$收敛模型的估计系数对全国层面和三大区域层面的收敛情况做出了分析。为能研究不同省市在在全国层面收敛过程中的异质性，本文近一步使用边际垂直$\beta$收敛模型展开研究。图-1至图-2分别展示了2010年至2014年和2015年至2019年的所有省市边际垂直$\beta$系数以及营商环境指标年增长速度。图-1的左侧为营商环境指标年增长速度，虚型线表示均值，上下点型线表示均值加减标准差，散点的大小表示期初营商环境指标指标，越大表明营商环境发展程度越高。图-1的右侧为所有省市边际垂直$\beta$系数大小，其中，上下虚型线表示均值加减标准差，而上下点型线表示均值加减两倍标准差，四条辅助线用来判断省市在收敛过程中的贡献方向和大小，并依次将所有省市划分为“较大正向贡献”、“一般正向贡献”、“无明显贡献”、“一般负向贡献”和“较大负向贡献”5种类型^[为避免极端值的影响，计算均值和标准差时均去掉一个最大点和最小点]。图-2和图-1的结构一样。
 
 
 ```{r echo=FALSE}
@@ -844,7 +844,7 @@ mvb %>% dplyr::filter(period == "2010~2014年") %>%
   arrange(mar) %>% pull(1) -> lev
 
 mvb %>% dplyr::filter(period == "2010~2014年") %>% 
-  dplyr::filter(province != "贵州") %>% 
+  arrange(mar) %>% slice(n=2:n()) %>% arrange(-mar) %>% slice(n=2:n()) %>% 
   transmute(
     high_2 = mean(mar)+2*sd(mar),
     high_1 = mean(mar)+1*sd(mar),
@@ -857,9 +857,7 @@ mvb %>%
   mutate(
     province = factor(province,levels = lev)
   ) %>% dplyr::filter(period == "2010~2014年") %>% 
-  # dplyr::filter(province != "贵州") %>% 
   ggplot(aes(province,mar,fill = location))+
-  # geom_chicklet(radius = unit(2,"pt"),position = "dodge")+
   geom_col(position = "dodge")+
   geom_hline(yintercept = aux[[1]],linetype = "dotted",color = "black")+
   geom_hline(yintercept = aux[[2]],linetype = "dashed",color = "black")+
@@ -882,7 +880,8 @@ mvb %>%
 
 ## 散点图
 
-ratio_sub1 %>%   
+ratio_sub1 %>% 
+  arrange(ratio) %>% slice(n=2:n()) %>% arrange(-ratio) %>% slice(n=2:n()) %>%
   transmute(
     mean = mean(ratio),
     sd = sd(ratio),
@@ -893,7 +892,6 @@ ratio_sub1 %>%
 ratio_sub1 %>% 
   arrange(ratio) %>% 
   mutate(province = fct_inorder(province)) %>% 
-  # dplyr::filter(province == "广东")
   mutate(
     index = case_when(
       index<=0.2 ~"low",
@@ -930,20 +928,10 @@ ratio_sub1 %>%
 (sub1_2+sub1_1)+
   plot_layout(guides = 'collect')&theme(legend.position = "bottom") 
 
-
 ```
 
+对于图-1的右侧，在第一个子考察期内，东部地区省市对整体收敛的贡献多是负向的，其中广东和山东属于负向贡献的第一梯度、其次是海南。而对收敛过程起到明显正向贡献的为河北。中部地区的8个省市均未对收敛过程起到明显的贡献作用；西部地区对收敛过程呈现明显负向贡献的依次为新疆和宁夏，而起到正向贡献的为甘肃和贵州。同时，结合广东和山东营商环境指标的年平均增长率和初始营商环境指标可知，对于广东和山东为代表的东部沿海省市，其经济体量较大、经济发展程度较好，企业的数量和活跃度都较高，营商环境指标的发展也较为成熟。并且，广东和山东的增长速度分别为第一、第二，本身就较发达的地区以最快的速度发展，相当于提高了差异的上限，因此这些省份导致了差距的拉大，即在收敛过程中起到了发散的作用。而对于海南和宁夏两省，其年平均速度近似于平均增长速度减去一倍标准差，故可认为其发展速度较低。对于这样初始禀赋较差的地区，当其增长速度还要低于平均速度时，就相当于拉低了差异的下限，因此也导致了发散。对于收敛过程起正向贡献的贵州、甘肃和河北三省来说，前两个西部省份的初始营商环境发展程度较低，但是其发展速度较快，接近于平均速度加上一倍标准差，也即欠发达地区以一个较快的速度向发达地区进行追赶，上一期的差异由于这种发展速度差会在下一期会缩小，因此会出现收敛的现象。对于河北来说，其发展速度略小于平均增长速度，但初始营商环境发展程度较高，相当于处于初始差异上限的个体以一个较低的速度发展，差异的上限在不断降低，因此导致了整体上的收敛。总体来说，在经济进入新常态之前，东部沿海地区营商环境的发展速度较快，但是西部地区的追赶效应也较为明显，也即差异上下限的发展速度都较快，反而是以中部地区为代表的省市发展速度较低，对整体的收敛过程未起到明显的贡献。这一结论和之前区域间基尼系数的分析相符。
 
-
-
-
-
-
-解释区域下降时使用“虹吸效应”。
-
-
-
-为近一步展示省市在不同子考察期中贡献的动态变化，依照前后两个子考察期边际垂直$\beta$系数变化的绝对大小，按照从小到大的顺序做出了如图-？所示的哑铃图。其中浅色点表示第一个子考察内的边际垂直$\beta$系数，深色点表示第二个子考察期内的边际垂直$\beta$系数；虚线表示边际垂直$\beta$系数变大，实现表示变小。
 
 ```{r echo=FALSE}
 # 2015~2019年
@@ -965,6 +953,7 @@ mvb %>% dplyr::filter(period == "2015~2019年") %>%
   arrange(mar) %>% pull(1) -> lev
 
 mvb %>% dplyr::filter(period == "2015~2019年") %>% 
+  arrange(mar) %>% slice(n=2:n()) %>% arrange(-mar) %>% slice(n=2:n()) %>%
   dplyr::filter(province != "贵州") %>% 
   transmute(
     high_2 = mean(mar)+2*sd(mar),
@@ -978,9 +967,7 @@ mvb %>%
   mutate(
     province = factor(province,levels = lev)
   ) %>% dplyr::filter(period == "2015~2019年") %>% 
-  #dplyr::filter(province != "贵州") %>% 
   ggplot(aes(province,mar,fill = location))+
-  # geom_chicklet(radius = unit(2,"pt"),position = "dodge")+
   geom_col(position = "dodge")+
   geom_hline(yintercept = aux[[1]],linetype = "dotted",color = "black")+
   geom_hline(yintercept = aux[[2]],linetype = "dashed",color = "black")+
@@ -1004,6 +991,7 @@ mvb %>%
 ## 散点图 
 
 ratio_sub2 %>%   
+  arrange(ratio) %>% slice(n=2:n()) %>% arrange(-ratio) %>% slice(n=2:n()) %>%
   transmute(
     mean = mean(ratio),
     sd = sd(ratio),
@@ -1047,6 +1035,7 @@ ratio_sub2 %>%
 
 (sub2_2+sub2_1)+
   plot_layout(guides = 'collect')&theme(legend.position = "bottom") 
+
 
 ```
 
