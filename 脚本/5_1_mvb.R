@@ -39,7 +39,7 @@ mvb %>% dplyr::filter(period == "2010~2014年") %>%
   arrange(mar) %>% pull(1) -> lev
 
 mvb %>% dplyr::filter(period == "2010~2014年") %>% 
-  dplyr::filter(province != "贵州") %>% 
+  arrange(mar) %>% slice(n=2:n()) %>% arrange(-mar) %>% slice(n=2:n()) %>% 
   transmute(
     high_2 = mean(mar)+2*sd(mar),
     high_1 = mean(mar)+1*sd(mar),
@@ -52,9 +52,7 @@ mvb %>%
   mutate(
     province = factor(province,levels = lev)
   ) %>% dplyr::filter(period == "2010~2014年") %>% 
-  # dplyr::filter(province != "贵州") %>% 
   ggplot(aes(province,mar,fill = location))+
-  # geom_chicklet(radius = unit(2,"pt"),position = "dodge")+
   geom_col(position = "dodge")+
   geom_hline(yintercept = aux[[1]],linetype = "dotted",color = "black")+
   geom_hline(yintercept = aux[[2]],linetype = "dashed",color = "black")+
@@ -77,7 +75,8 @@ mvb %>%
 
 ## 散点图
 
-ratio_sub1 %>%   
+ratio_sub1 %>% 
+  arrange(ratio) %>% slice(n=2:n()) %>% arrange(-ratio) %>% slice(n=2:n()) %>%
   transmute(
     mean = mean(ratio),
     sd = sd(ratio),
@@ -88,7 +87,6 @@ ratio_sub1 %>%
 ratio_sub1 %>% 
   arrange(ratio) %>% 
   mutate(province = fct_inorder(province)) %>% 
-  # dplyr::filter(province == "广东")
   mutate(
     index = case_when(
       index<=0.2 ~"low",
@@ -147,6 +145,7 @@ mvb %>% dplyr::filter(period == "2015~2019年") %>%
   arrange(mar) %>% pull(1) -> lev
 
 mvb %>% dplyr::filter(period == "2015~2019年") %>% 
+  arrange(mar) %>% slice(n=2:n()) %>% arrange(-mar) %>% slice(n=2:n()) %>%
   dplyr::filter(province != "贵州") %>% 
   transmute(
     high_2 = mean(mar)+2*sd(mar),
@@ -160,9 +159,7 @@ mvb %>%
   mutate(
     province = factor(province,levels = lev)
   ) %>% dplyr::filter(period == "2015~2019年") %>% 
-  #dplyr::filter(province != "贵州") %>% 
   ggplot(aes(province,mar,fill = location))+
-  # geom_chicklet(radius = unit(2,"pt"),position = "dodge")+
   geom_col(position = "dodge")+
   geom_hline(yintercept = aux[[1]],linetype = "dotted",color = "black")+
   geom_hline(yintercept = aux[[2]],linetype = "dashed",color = "black")+
@@ -186,6 +183,7 @@ mvb %>%
 ## 散点图 
 
 ratio_sub2 %>%   
+  arrange(ratio) %>% slice(n=2:n()) %>% arrange(-ratio) %>% slice(n=2:n()) %>%
   transmute(
     mean = mean(ratio),
     sd = sd(ratio),

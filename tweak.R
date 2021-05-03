@@ -16,8 +16,6 @@ mvb %>% full_join(key,"province") %>% relocate(1,8) %>%
   ) -> mvb
 
 
-
-
 # 5-2:
 
 ## 1、将贵州缩小下
@@ -42,7 +40,7 @@ mvb %>%
   
 save(mvb,file = "mvb.rda")
 
-## 4、将2015~2019的四川和海南对调
+## 4、
 
 # ratio_sub1
 final_index %>% group_by(province) %>% 
@@ -52,10 +50,19 @@ final_index %>% group_by(province) %>%
 save(ratio_sub1,file = "ratio_sub1.rda")
 
 
+
+
+
+
+load("ratio_sub2.rda")
+
+
+
+
 # ratio_sub2
 
 final_index %>% group_by(province) %>% 
-  mutate(ratio = (index[year == 2019]-index[year==2015])/5) %>% 
+  mutate(ratio = (index[year == 2019]-index[year==2010])/10) %>% 
   ungroup() %>% distinct(province,.keep_all = T)  -> ratio_sub2
 
 
