@@ -1,12 +1,10 @@
 setwd("/Users/null/Desktop/Doing Business/prettydoc")
 
-load("final_index.rda")
-final_index %>%
-  mutate(index = (index-min(index))/(max(index)-min(index))) %>% 
+load("new_index.rda")
+new_index %>%
   mutate(
     index = if_else(year == 2019 & location == "东部地区",index*1.1,index)
   ) -> df
-
 
 
 df %<>% mutate(location = factor(

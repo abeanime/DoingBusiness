@@ -3,6 +3,7 @@
 
 load("final_index.rda")
 load("index.rda")
+load("new_index")
 
 ##########################################################################
 # 1 准备数据
@@ -27,7 +28,9 @@ final_index %>%
   mutate(index = (index-min(index))/(max(index)-min(index))) -> final_index_tweak
 
 
-## fig1：定子系统，重点对比不同地区随时间变化的情况
+#####################################################################
+# fig1、定子系统，重点对比不同地区随时间变化的情况 ^========
+
 index_tweak %>%
   group_by(year, location) %>%
   summarise(across(where(is.numeric), mean)) %>%
@@ -50,7 +53,8 @@ index_tweak %>%
 save(fig1,file = "pic/fig1.rda")
 
 
-
+#####################################################################
+# fig2、 ^========
 
 
 index_tweak %>%
@@ -141,9 +145,11 @@ east+mid+west+
 save(fig2,file = "pic/fig2.rda")
 
 #####################################################################
+# fig 3 
 
 
-final_index_tweak %>% 
+load("new_index.rda")
+new_index %>% 
   group_by(location,year) %>% 
   summarise(index = mean(index)) %>% 
   pivot_wider(names_from = location,values_from = index) %>% 
@@ -157,6 +163,7 @@ final_index_tweak %>%
   labs(x = "年份",y = str_wrap("营商环境指标得分",2),
        shape = "地区")+
   scale_x_continuous(n.breaks = 10)+
+  scale_y_continuous(n.breaks = 6)+
   scale_shape_manual(values = c(15:18))+
   theme(
     legend.position = "bottom",
@@ -165,18 +172,18 @@ final_index_tweak %>%
     axis.title.y.left = element_text(angle = 0)
   ) -> fig3
 
+
 save(fig3,file = "pic/fig3.rda")
 
 #####################################################################
 
-load("final_index.rda")
+load("new_index.rda")
 load("raw.rda")
 pacman::p_load(lubridate,sf,geojsonsf,geojsonio,jsonlite,haven)
 
 
-final_index %>%  
-  mutate(index = (index -min(index))/(max(index)-min(index))) %>% 
-  mutate(new = round(index,3)) -> final_index
+new_index %>%  
+  mutate(new = round(index,3)) -> new_index
 
 prov_unify <- function(df,province=province) {
   df %>% pull({{province}}) -> target
@@ -191,8 +198,9 @@ prov_unify <- function(df,province=province) {
 raw %>% prov_unify(省) %>% 
   sf_geojson() %>% 
   fromJSON(simplifyVector = FALSE) -> provmap
+new_index %>% pull(4) %>% summary() -> qqq
+new_index %>% pull(4) -> all_index
 
-final_index %>% dplyr::filter(year == 2019) %>% pull(4) %>% quantile() -> qqq
 
 highchart() %>% # 使用JavaScript方式
   hc_chart(
@@ -206,7 +214,7 @@ highchart() %>% # 使用JavaScript方式
     )
   ) %>% 
   hc_add_series_map(map = provmap,
-                    df = final_index %>% dplyr::filter(year == 2019), 
+                    df = new_index %>% dplyr::filter(year == 2019), 
                     joinBy = c("province", "province"), 
                     value = "index", 
                     name = "营商环境指标：",
@@ -220,10 +228,10 @@ highchart() %>% # 使用JavaScript方式
     color = "black",borderWidth = 0.5,show.legend = T
   ) %>% 
   hc_colorAxis(dataClasses = list(
-    list(to = qqq[[1]], color = alpha("grey",0.2), name = "数据缺失"),
-    list(from = qqq[[1]], to = qqq[[2]], color = alpha("grey",0.4)),
-    list(from = qqq[[2]], to = qqq[[3]], color = alpha("grey",0.8)),
-    list(from = qqq[[3]], to = 1.2, color = "grey"))) %>% 
+    list(to = qqq[[1]], color = alpha("grey",0.4), name = "数据缺失"),
+    list(from = qqq[[1]], to = qqq[[3]], color = alpha("black",0.1)),
+    list(from = qqq[[3]], to = 4.7, color = alpha("darkgrey")),
+    list(from = 4.7, to = max(all_index), color = alpha("black",0.5)))) %>% 
   hc_tooltip(headerFormat = "",
              pointFormat = "<b>{point.province}</b><br>营商环境指标：{point.new}",
              borderRadius = 5) %>% 
@@ -240,8 +248,7 @@ highchart() %>% # 使用JavaScript方式
             title = list(text = " ")) %>% 
   hc_title(
     text = str_c(2019,"年全国各地营商环境指标分布情况")
-  ) -> fig4
-
+  )  -> fig4
 
 save(fig4,file = "pic/fig4.rda")
 
@@ -260,10 +267,12 @@ group_sort <- function(df,group_var,id_var,target_var) {
     mutate(!!id_var := fct_inorder(!!id_var,ordered = T))
 } # end of "group_sort"
 
-load("final_index.rda")
-final_index %<>% mutate(index = (index-min(index))/(max(index)-min(index)))
+# load("final_index.rda")
+# final_index %<>% mutate(index = (index-min(index))/(max(index)-min(index)))
 
-final_index %>% 
+load("new_index.rda")
+
+new_index %>% 
   dplyr::filter(year == 2019) %>% 
   group_sort(location,province,index) %>% 
   ggplot(aes(province,index,fill = location))+
@@ -274,8 +283,6 @@ final_index %>%
   # geom_hline(yintercept = qqq[[4]],linetype = "dashed",color = "black")+
   labs(x = "",y = "得分",fill = "地区")+
   scale_fill_manual(values = c(alpha("black",0.2),"darkgrey",alpha("black",0.6)))+
-  # scale_color_viridis_d()+
-  scale_y_continuous(limits = c(0,1.25))+
   theme(
     text = element_text(family = cnfont),
     plot.margin = margin(20,20,20,20),
@@ -283,13 +290,11 @@ final_index %>%
     axis.text.y.left = element_text(size = 8)
   ) -> fig5
 
-
 save(fig5,file = "pic/fig5.rda")
 
 #####################################################################
 
 load("gini.rda")
-
 
 # 地区内的gini
 
