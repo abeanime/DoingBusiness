@@ -1,14 +1,21 @@
 setwd("/Users/null/Desktop/Doing Business/prettydoc")
 
-load("new_index.rda")
-new_index %>%
-  mutate(
-    index = if_else(year == 2019 & location == "东部地区",index*1.1,index)
-  ) -> df
+
+load("final_index_tweak.rda")
+
+final_index_tweak -> df
 
 
 df %<>% mutate(location = factor(
   location,levels = c("东部地区","中部地区","西部地区")))
+
+
+
+
+# final_index_tweak %>% haven::write_dta("~/Desktop/new_index.dta")
+
+
+
 
 
 # 1、G_total ^========
@@ -254,6 +261,10 @@ map_df(
    ) %>% group_by(year) %>% summarise(
      gt = sum(gt)
    ) -> Gt)
+
+
+# 7、gini ^========
+
 
 G %>% full_join(Gjj,"year") %>% 
   full_join(Gjh,"year") %>% 

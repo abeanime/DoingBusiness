@@ -116,7 +116,9 @@ df %>%
   select(-c(职务犯罪立案数,公职人员总数)) %>% 
   xt_pca(name = "index") -> final_index
 
-# save(final_index,file = "final_index.rda")
+
+
+save(final_index,file = "final_index.rda")
 
 
 

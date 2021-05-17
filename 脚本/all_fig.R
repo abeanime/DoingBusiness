@@ -31,11 +31,23 @@ final_index %>%
 #####################################################################
 # fig1、定子系统，重点对比不同地区随时间变化的情况 ^========
 
-index_tweak %>%
+load("all_result.rda")
+
+all_result %>% select(1:8) %>% 
+  rename(province = 省份, year = 年份, location= 地区) %>% 
   group_by(year, location) %>%
   summarise(across(where(is.numeric), mean)) %>%
   ungroup() %>%
-  pivot_longer(-c(1:2), names_to = "子系统类别", values_to = "子系统得分") %>%
+  pivot_longer(-c(1:2), names_to = "子系统类别", values_to = "子系统得分") %>% 
+  mutate(
+    子系统类别 = factor(
+      子系统类别,
+      levels = c("开放化水平","政府对企业的保护",
+                      "企业经营环境","企业法治环境","政府公共服务水平"),
+      labels = c("开放化水平","市场主体保护力度","企业市场环境",
+                 "企业法治环境","公共服务水平")
+    )
+  ) %>% 
   ggplot(aes(year, 子系统得分, shape = location)) +
   geom_line(size = 1, color = alpha("darkgrey", 0.5)) +
   geom_point(color = alpha("black", 0.5), size = 2.5) +
@@ -48,6 +60,7 @@ index_tweak %>%
     text = element_text(family = cnfont),
     plot.margin = margin(20, 20, 20, 20)
   ) -> fig1
+
 
 
 save(fig1,file = "pic/fig1.rda")
@@ -148,8 +161,11 @@ save(fig2,file = "pic/fig2.rda")
 # fig 3 
 
 
-load("new_index.rda")
-new_index %>% 
+load("all_result.rda")
+
+all_result %>% 
+  rename(province = 省份, year = 年份, location= 地区, index= 营商环境指标) %>% 
+  select(1:3,9) %>% 
   group_by(location,year) %>% 
   summarise(index = mean(index)) %>% 
   pivot_wider(names_from = location,values_from = index) %>% 
@@ -177,7 +193,12 @@ save(fig3,file = "pic/fig3.rda")
 
 #####################################################################
 
-load("new_index.rda")
+load("all_result.rda")
+all_result %>% 
+  rename(province = 省份, year = 年份,
+         location= 地区, index= 营商环境指标) -> new_index
+  
+  
 load("raw.rda")
 pacman::p_load(lubridate,sf,geojsonsf,geojsonio,jsonlite,haven)
 
@@ -198,8 +219,11 @@ prov_unify <- function(df,province=province) {
 raw %>% prov_unify(省) %>% 
   sf_geojson() %>% 
   fromJSON(simplifyVector = FALSE) -> provmap
+
+
 new_index %>% pull(4) %>% summary() -> qqq
 new_index %>% pull(4) -> all_index
+
 
 
 highchart() %>% # 使用JavaScript方式
@@ -230,8 +254,8 @@ highchart() %>% # 使用JavaScript方式
   hc_colorAxis(dataClasses = list(
     list(to = qqq[[1]], color = alpha("grey",0.4), name = "数据缺失"),
     list(from = qqq[[1]], to = qqq[[3]], color = alpha("black",0.1)),
-    list(from = qqq[[3]], to = 4.7, color = alpha("darkgrey")),
-    list(from = 4.7, to = max(all_index), color = alpha("black",0.5)))) %>% 
+    list(from = qqq[[3]], to = qqq[[5]], color = alpha("darkgrey")),
+    list(from = qqq[[5]], to = 100, color = alpha("black",0.5)))) %>% 
   hc_tooltip(headerFormat = "",
              pointFormat = "<b>{point.province}</b><br>营商环境指标：{point.new}",
              borderRadius = 5) %>% 
@@ -240,15 +264,15 @@ highchart() %>% # 使用JavaScript方式
             verticalAlign = "bottom",
             itemMarginTop= 3,
             itemMarginBottom= 3,
-            valueDecimals = 3,
+            valueDecimals = 0,
             # floating = TRUE,
             symbolRadius = 0,
             # x = 200, y = -20,
             symbolHeight = 14, 
             title = list(text = " ")) %>% 
   hc_title(
-    text = str_c(2019,"年全国各地营商环境指标分布情况")
-  )  -> fig4
+    text = str_c(2019,"年全国各地营商环境指标得分分布情况")
+  ) -> fig4
 
 save(fig4,file = "pic/fig4.rda")
 
@@ -267,21 +291,17 @@ group_sort <- function(df,group_var,id_var,target_var) {
     mutate(!!id_var := fct_inorder(!!id_var,ordered = T))
 } # end of "group_sort"
 
-# load("final_index.rda")
-# final_index %<>% mutate(index = (index-min(index))/(max(index)-min(index)))
 
-load("new_index.rda")
+load("all_result.rda")
 
-new_index %>% 
+all_result %>% 
+  rename(province = 省份, year = 年份, location= 地区, index= 营商环境指标) %>% 
   dplyr::filter(year == 2019) %>% 
   group_sort(location,province,index) %>% 
   ggplot(aes(province,index,fill = location))+
   geom_col()+
   coord_flip()+
-  # geom_hline(yintercept = qqq[[2]],linetype = "dashed",color = "black")+
-  # geom_hline(yintercept = qqq[[3]],linetype = "dashed",color = "black")+
-  # geom_hline(yintercept = qqq[[4]],linetype = "dashed",color = "black")+
-  labs(x = "",y = "得分",fill = "地区")+
+  labs(x = "",y = "营商环境指标得分",fill = "地区")+
   scale_fill_manual(values = c(alpha("black",0.2),"darkgrey",alpha("black",0.6)))+
   theme(
     text = element_text(family = cnfont),
