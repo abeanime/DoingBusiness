@@ -12,7 +12,6 @@ df %<>% mutate(location = factor(
 
 
 
-# final_index_tweak %>% haven::write_dta("~/Desktop/new_index.dta")
 
 
 
@@ -275,6 +274,13 @@ G %>% full_join(Gjj,"year") %>%
 
 
 save(gini,file = "gini.rda")
+
+
+
+
+
+
+
 ##########################################################################
 
 # 地区内的gini

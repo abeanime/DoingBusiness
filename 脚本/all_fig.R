@@ -1,4 +1,7 @@
 
+
+
+setwd("/Users/null/Desktop/Doing Business/prettydoc") 
 # fig-1
 
 load("final_index.rda")
@@ -38,7 +41,8 @@ all_result %>% select(1:8) %>%
   group_by(year, location) %>%
   summarise(across(where(is.numeric), mean)) %>%
   ungroup() %>%
-  pivot_longer(-c(1:2), names_to = "子系统类别", values_to = "子系统得分") %>% 
+  pivot_longer(-c(1:2), 
+               names_to = "子系统类别", values_to = "子系统得分") %>% 
   mutate(
     子系统类别 = factor(
       子系统类别,
@@ -60,6 +64,18 @@ all_result %>% select(1:8) %>%
     text = element_text(family = cnfont),
     plot.margin = margin(20, 20, 20, 20)
   ) -> fig1
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -479,6 +495,8 @@ save(fig11,file = "pic/fig11.rda")
 
 load("mvb_plot.rda")
 mvb_plot -> fig12
+
+
 
 
 save(fig12,file = "pic/fig12.rda")
